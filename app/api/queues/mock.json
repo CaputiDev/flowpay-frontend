@@ -1,0 +1,24 @@
+{
+    "filaAtiva": [
+        {
+            "id": 1,
+            "cliente": "Empresa Alfa",
+            "valor": 1500.00,
+            "status": "PROCESSANDO"
+        }
+    ],
+    "filaEspera": [
+        {
+            "id": 2,
+            "cliente": "Startup Beta",
+            "valor": 450.50,
+            "status": "AGUARDANDO"
+        },
+        {
+            "id": 3,
+            "cliente": "Loja Gama",
+            "valor": 890.00,
+            "status": "AGUARDANDO"
+        }
+    ]
+}
