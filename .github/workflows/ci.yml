@@ -1,0 +1,33 @@
+name: Frontend Pipeline
+
+# Define quando essa bateria vai rodar
+on:
+  pull_request:
+    branches: ["main", "develop"] # Vai rodar em todo PR aberto pra essas branches
+
+jobs:
+  build-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 🟢 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: 📦 Instalar dependências
+        run: npm ci
+
+      - name: 🧹 Verificação de Linting
+        run: npm run lint
+
+      - name: 🧪 Executar Testes Unitários
+        run: npm run test:ci
+
+      - name: 🏗️ Testar o Build
+        run: npm run build
