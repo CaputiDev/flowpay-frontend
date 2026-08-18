@@ -1,24 +1,30 @@
 {
     "filaAtiva": [
         {
-            "id": 1,
-            "cliente": "Empresa Alfa",
-            "valor": 1500.00,
-            "status": "PROCESSANDO"
+            "id": "8324469b-e7b6-428f-8833-c8047b503a0e",
+            "ticketNumber": null,
+            "chatRef": "chat-001",
+            "subject": "Dúvida sobre faturamento",
+            "status": "IN_PROGRESS",
+            "errorMsg": null,
+            "createdAt": "2026-08-18T15:15:33.094Z",
+            "finishedAt": null,
+            "queueId": "46145c40-f16d-4e7b-b5b5-368423a21141",
+            "agentId": "0f9ce0b9-c65a-4b31-9f03-13f32cab6317"
         }
     ],
     "filaEspera": [
         {
-            "id": 2,
-            "cliente": "Startup Beta",
-            "valor": 450.50,
-            "status": "AGUARDANDO"
-        },
-        {
-            "id": 3,
-            "cliente": "Loja Gama",
-            "valor": 890.00,
-            "status": "AGUARDANDO"
+            "id": "9a145c40-f16d-4e7b-b5b5-1234567890ab",
+            "ticketNumber": "TCK-992",
+            "chatRef": "chat-002",
+            "subject": "Problema de acesso",
+            "status": "WAITING",
+            "errorMsg": null,
+            "createdAt": "2026-08-18T15:20:00.000Z",
+            "finishedAt": null,
+            "queueId": "46145c40-f16d-4e7b-b5b5-368423a21141",
+            "agentId": "0f9ce0b9-c65a-4b31-9f03-13f32cab6317"
         }
     ]
 }
