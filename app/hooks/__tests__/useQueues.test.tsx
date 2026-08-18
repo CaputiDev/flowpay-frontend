@@ -6,16 +6,20 @@ import { useQueues } from "../useQueues";
 
 describe("useQueues hook", () => {
   const createWrapper = () => {
-    return ({ children }: { children: React.ReactNode }) => (
-      <SWRConfig
-        value={{
-          provider: () => new Map(),
-          dedupingInterval: 0,
-        }}
-      >
-        {children}
-      </SWRConfig>
-    );
+    function SWRTestWrapper({ children }: { children: React.ReactNode }) {
+      return (
+        <SWRConfig
+          value={{
+            provider: () => new Map(),
+            dedupingInterval: 0,
+          }}
+        >
+          {children}
+        </SWRConfig>
+      );
+    }
+    SWRTestWrapper.displayName = "SWRTestWrapper";
+    return SWRTestWrapper;
   };
 
   beforeEach(() => {
