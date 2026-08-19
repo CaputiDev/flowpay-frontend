@@ -20,7 +20,7 @@ describe("POST /api/queues/[id]/finish", () => {
       params: Promise.resolve({ id: "123" }),
     });
 
-    vi.advanceTimersByTime(400);
+    await vi.advanceTimersByTimeAsync(500);
 
     const response = await routePromise;
     expect(response.status).toBe(200);
@@ -43,7 +43,7 @@ describe("POST /api/queues/[id]/finish", () => {
       params: Promise.resolve({ id: "123" }),
     });
 
-    vi.advanceTimersByTime(400);
+    await vi.advanceTimersByTimeAsync(500);
 
     const response = await routePromise;
     expect(response.status).toBe(500);

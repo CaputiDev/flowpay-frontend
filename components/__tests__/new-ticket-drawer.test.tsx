@@ -1,0 +1,60 @@
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { NewTicketDrawer } from "../new-ticket-drawer";
+
+describe("NewTicketDrawer", () => {
+  it("should validate required subject field with minimum length", async () => {
+    const user = userEvent.setup();
+    const onSubmitTicket = vi.fn().mockResolvedValue({});
+    const onOpenChange = vi.fn();
+
+    render(
+      <NewTicketDrawer
+        open={true}
+        onOpenChange={onOpenChange}
+        onSubmitTicket={onSubmitTicket}
+      />
+    );
+
+    const submitButton = screen.getByRole("button", { name: /adicionar à fila/i });
+    await user.click(submitButton);
+
+    expect(
+      await screen.findByText(/o assunto é obrigatório e deve ter no mínimo 3 caracteres/i)
+    ).toBeInTheDocument();
+    expect(onSubmitTicket).not.toHaveBeenCalled();
+  });
+
+  it("should submit valid ticket form and reset", async () => {
+    const user = userEvent.setup();
+    const onSubmitTicket = vi.fn().mockResolvedValue({});
+    const onOpenChange = vi.fn();
+
+    render(
+      <NewTicketDrawer
+        open={true}
+        onOpenChange={onOpenChange}
+        onSubmitTicket={onSubmitTicket}
+      />
+    );
+
+    const subjectInput = screen.getByLabelText(/assunto/i);
+    await user.type(subjectInput, "Solicitação de reembolso");
+
+    const protocolInput = screen.getByLabelText(/número do protocolo/i);
+    await user.type(protocolInput, "TCK-1234");
+
+    const submitButton = screen.getByRole("button", { name: /adicionar à fila/i });
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(onSubmitTicket).toHaveBeenCalledWith({
+        subject: "Solicitação de reembolso",
+        ticketNumber: "TCK-1234",
+        chatRef: undefined,
+      });
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+  });
+});

@@ -16,7 +16,7 @@ describe("API /api/queues", () => {
     it("should return mock data after simulated delay", async () => {
       const routePromise = GET();
 
-      vi.advanceTimersByTime(500);
+      await vi.advanceTimersByTimeAsync(600);
 
       const response = await routePromise;
       expect(response.status).toBe(200);
@@ -42,7 +42,7 @@ describe("API /api/queues", () => {
       });
 
       const routePromise = POST(request);
-      vi.advanceTimersByTime(400);
+      await vi.advanceTimersByTimeAsync(500);
 
       const response = await routePromise;
       expect(response.status).toBe(201);
