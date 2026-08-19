@@ -1,15 +1,16 @@
-name: Frontend Pipeline
+name: 🏗️ CI - Build
 
-# Define quando essa bateria vai rodar
 on:
+  push:
+    branches: ["main"]
+
   pull_request:
-    branches: ["main", "develop"] # Vai rodar em todo PR aberto pra essas branches
+    branches: ["main", "develop"]
 
 jobs:
-  build-and-test:
-    name: Lint & Test
+  build:
+    name: Next.js Build Check
     runs-on: ubuntu-latest
-
     steps:
       - name: 📥 Checkout do código
         uses: actions/checkout@v4
@@ -22,12 +23,6 @@ jobs:
 
       - name: 📦 Instalar dependências
         run: npm ci
-
-      - name: 🧹 Verificação de Linting
-        run: npm run lint
-
-      - name: 🧪 Executar Testes Unitários
-        run: npm run test:ci
 
       - name: 🏗️ Testar o Build
         run: npm run build
