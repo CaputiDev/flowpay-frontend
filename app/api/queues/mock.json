@@ -1,30 +1,54 @@
 {
-    "filaAtiva": [
-        {
-            "id": "8324469b-e7b6-428f-8833-c8047b503a0e",
-            "ticketNumber": null,
-            "chatRef": "chat-001",
-            "subject": "Dúvida sobre faturamento",
-            "status": "IN_PROGRESS",
-            "errorMsg": null,
-            "createdAt": "2026-08-18T15:15:33.094Z",
-            "finishedAt": null,
-            "queueId": "46145c40-f16d-4e7b-b5b5-368423a21141",
-            "agentId": "0f9ce0b9-c65a-4b31-9f03-13f32cab6317"
-        }
-    ],
-    "filaEspera": [
-        {
-            "id": "9a145c40-f16d-4e7b-b5b5-1234567890ab",
-            "ticketNumber": "TCK-992",
-            "chatRef": "chat-002",
-            "subject": "Problema de acesso",
-            "status": "WAITING",
-            "errorMsg": null,
-            "createdAt": "2026-08-18T15:20:00.000Z",
-            "finishedAt": null,
-            "queueId": "46145c40-f16d-4e7b-b5b5-368423a21141",
-            "agentId": "0f9ce0b9-c65a-4b31-9f03-13f32cab6317"
-        }
-    ]
+  "filaAtiva": [
+    {
+      "id": "8324469b-e7b6-428f-8833-c8047b503a0e",
+      "ticketNumber": "TCK-991",
+      "chatRef": "chat-001",
+      "subject": "Dúvida sobre faturamento",
+      "status": "IN_PROGRESS",
+      "errorMsg": null,
+      "createdAt": "2026-08-18T15:15:33.094Z",
+      "finishedAt": null,
+      "queueId": "46145c40-f16d-4e7b-b5b5-368423a21141",
+      "agentId": "0f9ce0b9-c65a-4b31-9f03-13f32cab6317"
+    },
+    {
+      "id": "c45a7b8e-1234-4567-89ab-cdef01234567",
+      "ticketNumber": "TCK-993",
+      "chatRef": "chat-003",
+      "subject": "Solicitação de estorno PIX",
+      "status": "IN_PROGRESS",
+      "errorMsg": null,
+      "createdAt": "2026-08-18T15:30:10.000Z",
+      "finishedAt": null,
+      "queueId": "46145c40-f16d-4e7b-b5b5-368423a21141",
+      "agentId": "0f9ce0b9-c65a-4b31-9f03-13f32cab6317"
+    }
+  ],
+  "filaEspera": [
+    {
+      "id": "9a145c40-f16d-4e7b-b5b5-1234567890ab",
+      "ticketNumber": "TCK-992",
+      "chatRef": "chat-002",
+      "subject": "Problema de acesso ao aplicativo",
+      "status": "WAITING",
+      "errorMsg": null,
+      "createdAt": "2026-08-18T15:20:00.000Z",
+      "finishedAt": null,
+      "queueId": "46145c40-f16d-4e7b-b5b5-368423a21141",
+      "agentId": "0f9ce0b9-c65a-4b31-9f03-13f32cab6317"
+    },
+    {
+      "id": "f89b1234-5678-4321-abcd-ef0123456789",
+      "ticketNumber": "TCK-994",
+      "chatRef": "chat-004",
+      "subject": "Alteração de limite de transferência",
+      "status": "WAITING",
+      "errorMsg": null,
+      "createdAt": "2026-08-18T15:45:00.000Z",
+      "finishedAt": null,
+      "queueId": "46145c40-f16d-4e7b-b5b5-368423a21141",
+      "agentId": "0f9ce0b9-c65a-4b31-9f03-13f32cab6317"
+    }
+  ]
 }

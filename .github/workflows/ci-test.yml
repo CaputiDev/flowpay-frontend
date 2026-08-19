@@ -1,0 +1,44 @@
+name: 🧪 CI - Tests & Coverage
+
+on:
+  push:
+    branches: ["main"]
+
+  pull_request:
+    branches: ["main", "develop"]
+
+jobs:
+  test:
+    name: Unit Tests & Coverage
+    runs-on: ubuntu-latest
+    # Necessário para a Action de relatórios de teste conseguir escrever no PR
+    permissions:
+      contents: read
+      actions: read
+      checks: write
+
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 🟢 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: 📦 Instalar dependências
+        run: npm ci
+
+      - name: 🧪 Executar Testes com Cobertura e Exportar JUnit
+        # Roda o teste, gera cobertura e cria o arquivo vitest-report.xml
+        run: npm run test:coverage -- --reporter=junit --outputFile=vitest-report.xml
+
+      - name: 📊 Publicar Relatório de Testes na Interface do GitHub
+        uses: dorny/test-reporter@v1
+        # Garante que o relatório seja gerado mesmo se algum teste falhar
+        if: success() || failure()
+        with:
+          name: Resultados dos Testes (Vitest)
+          path: vitest-report.xml
+          reporter: jest-junit # O formato JUnit do Vitest é compatível com o do Jest
