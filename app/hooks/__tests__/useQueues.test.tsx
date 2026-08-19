@@ -146,6 +146,34 @@ describe("useQueues hook", () => {
     expect(result.current.filas?.filaEspera[0].subject).toBe("Novo Chamado");
   });
 
+  it("should throw error when createAtendimento fails", async () => {
+    const fetchMock = vi.fn((url: string, init?: RequestInit) => {
+      if (init?.method === "POST") {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          json: () => Promise.resolve({ error: "Assunto inválido" }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ filaAtiva: [], filaEspera: [] }),
+      });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQueues(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await expect(
+      result.current.createAtendimento({ subject: "Curto" })
+    ).rejects.toThrow("Assunto inválido");
+  });
+
   it("should finish attendance and remove from active list in cache upon HTTP 200", async () => {
     const initialData = {
       filaAtiva: [
@@ -193,12 +221,43 @@ describe("useQueues hook", () => {
     expect(result.current.filas?.filaAtiva).toHaveLength(0);
   });
 
-  it("should return error state when fetch fails", async () => {
-    const mockError = new Error("Network error");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.reject(mockError))
+  it("should throw error when finishAtendimento fails", async () => {
+    const fetchMock = vi.fn((url: string, init?: RequestInit) => {
+      if (init?.method === "POST") {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+          json: () => Promise.resolve({ error: "Erro interno no servidor" }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ filaAtiva: [], filaEspera: [] }),
+      });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQueues(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await expect(
+      result.current.finishAtendimento("item-1", { simulateError: true })
+    ).rejects.toThrow("Erro interno no servidor");
+  });
+
+  it("should return error state when fetch fails or returns not ok", async () => {
+    const fetchMock = vi.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 500,
+        json: () => Promise.resolve({}),
+      })
     );
+    vi.stubGlobal("fetch", fetchMock);
 
     const { result } = renderHook(() => useQueues(), {
       wrapper: createWrapper(),

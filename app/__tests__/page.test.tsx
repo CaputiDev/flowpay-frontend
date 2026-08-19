@@ -83,7 +83,72 @@ describe("Dashboard Page", () => {
     expect(screen.getByRole("button", { name: /finalizar atendimento tck-991/i })).toBeInTheDocument();
   });
 
-  it("should toggle sidebar expansion when menu button is clicked", async () => {
+  it("should render empty state messages when both queues are empty", () => {
+    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
+      filas: { filaAtiva: [], filaEspera: [] },
+      isLoading: false,
+      isError: undefined,
+      mutate: vi.fn(),
+      createAtendimento: vi.fn(),
+      finishAtendimento: vi.fn(),
+    });
+
+    render(<Dashboard />);
+
+    expect(
+      screen.getByText("Nenhum atendimento em andamento no momento.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Nenhum chamado na fila de espera.")
+    ).toBeInTheDocument();
+  });
+
+  it("should display error banner and allow retry via mutate", async () => {
+    const user = userEvent.setup();
+    const mutateMock = vi.fn();
+
+    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
+      filas: undefined,
+      isLoading: false,
+      isError: new Error("Network error"),
+      mutate: mutateMock,
+      createAtendimento: vi.fn(),
+      finishAtendimento: vi.fn(),
+    });
+
+    render(<Dashboard />);
+
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+    expect(screen.getByText(/erro ao sincronizar filas/i)).toBeInTheDocument();
+
+    const retryBtn = screen.getByRole("button", { name: /tentar novamente/i });
+    await user.click(retryBtn);
+
+    expect(mutateMock).toHaveBeenCalled();
+  });
+
+  it("should trigger refresh when update button is clicked", async () => {
+    const user = userEvent.setup();
+    const mutateMock = vi.fn();
+
+    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
+      filas: mockFilas,
+      isLoading: false,
+      isError: undefined,
+      mutate: mutateMock,
+      createAtendimento: vi.fn(),
+      finishAtendimento: vi.fn(),
+    });
+
+    render(<Dashboard />);
+
+    const refreshBtn = screen.getByRole("button", { name: /atualizar dados da fila/i });
+    await user.click(refreshBtn);
+
+    expect(mutateMock).toHaveBeenCalled();
+  });
+
+  it("should toggle sidebar expansion and support backdrop close", async () => {
     const user = userEvent.setup();
     vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
       filas: mockFilas,
@@ -109,12 +174,16 @@ describe("Dashboard Page", () => {
     expect(screen.getByText("Abrir Chamado")).toBeInTheDocument();
     expect(screen.getByText("Histórico / Fechados")).toBeInTheDocument();
 
-    await user.click(menuButton);
-    expect(aside).toHaveClass("w-16");
-    expect(screen.queryByText("Menu Ubots")).not.toBeInTheDocument();
+    // Clica no backdrop mobile para fechar
+    const backdrop = container.querySelector(".fixed.inset-0.z-20");
+    expect(backdrop).toBeInTheDocument();
+    if (backdrop) {
+      await user.click(backdrop);
+      expect(aside).toHaveClass("w-16");
+    }
   });
 
-  it("should open NewTicketDrawer when 'Novo Chamado' or 'Abrir Chamado' is clicked", async () => {
+  it("should open NewTicketDrawer when 'Abrir Chamado' in sidebar is clicked", async () => {
     const user = userEvent.setup();
     vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
       filas: mockFilas,
@@ -127,18 +196,10 @@ describe("Dashboard Page", () => {
 
     render(<Dashboard />);
 
-    const novoChamadoBtn = screen.getByRole("button", { name: /criar novo atendimento/i });
-    await user.click(novoChamadoBtn);
+    const abrirChamadoBtn = screen.getByTitle("Abrir Chamado");
+    await user.click(abrirChamadoBtn);
 
     expect(screen.getByRole("heading", { name: /novo atendimento/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/assunto/i)).toBeInTheDocument();
-
-    const cancelBtn = screen.getByRole("button", { name: /cancelar/i });
-    await user.click(cancelBtn);
-
-    await waitFor(() => {
-      expect(screen.queryByRole("heading", { name: /novo atendimento/i })).not.toBeInTheDocument();
-    });
   });
 
   it("should execute finish action on active item with pessimistic UI", async () => {

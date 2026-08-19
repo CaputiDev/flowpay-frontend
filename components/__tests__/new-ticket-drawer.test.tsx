@@ -57,4 +57,30 @@ describe("NewTicketDrawer", () => {
       expect(onOpenChange).toHaveBeenCalledWith(false);
     });
   });
+
+  it("should handle error when submission fails", async () => {
+    const user = userEvent.setup();
+    const onSubmitTicket = vi.fn().mockRejectedValue(new Error("Falha ao salvar"));
+    const onOpenChange = vi.fn();
+
+    render(
+      <NewTicketDrawer
+        open={true}
+        onOpenChange={onOpenChange}
+        onSubmitTicket={onSubmitTicket}
+      />
+    );
+
+    const subjectInput = screen.getByLabelText(/assunto/i);
+    await user.type(subjectInput, "Falha de pagamento");
+
+    const submitButton = screen.getByRole("button", { name: /adicionar à fila/i });
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(onSubmitTicket).toHaveBeenCalled();
+      // Não fecha a gaveta em caso de erro
+      expect(onOpenChange).not.toHaveBeenCalledWith(false);
+    });
+  });
 });
