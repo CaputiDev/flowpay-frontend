@@ -25,7 +25,6 @@ const ticketFormSchema = z.object({
     .string()
     .trim()
     .min(3, { message: "O assunto é obrigatório e deve ter no mínimo 3 caracteres." }),
-  ticketNumber: z.string().trim().optional(),
   chatRef: z.string().trim().optional(),
 });
 
@@ -54,7 +53,6 @@ export function NewTicketDrawer({
     resolver: zodResolver(ticketFormSchema),
     defaultValues: {
       subject: "",
-      ticketNumber: "",
       chatRef: "",
     },
   });
@@ -64,13 +62,12 @@ export function NewTicketDrawer({
       setIsSubmitting(true);
       await onSubmitTicket({
         subject: data.subject,
-        ticketNumber: data.ticketNumber || undefined,
         chatRef: data.chatRef || undefined,
       });
 
       toast({
         title: "Chamado criado com sucesso!",
-        description: `O atendimento "${data.subject}" foi adicionado à fila de espera.`,
+        description: `O atendimento "${data.subject}" foi processado e roteado.`,
         variant: "default",
       });
 
@@ -110,7 +107,7 @@ export function NewTicketDrawer({
               Novo Atendimento
             </SheetTitle>
             <SheetDescription id="new-ticket-description">
-              Preencha os dados do chamado para adicioná-lo à fila de espera em tempo real.
+              Preencha os dados do chamado para roteamento automático entre as equipes.
             </SheetDescription>
           </SheetHeader>
 
@@ -121,7 +118,7 @@ export function NewTicketDrawer({
               </Label>
               <Input
                 id="subject"
-                placeholder="Ex: Dúvida sobre conciliação bancária"
+                placeholder="Ex: Dúvida sobre fatura do Cartão"
                 {...register("subject")}
                 aria-invalid={!!errors.subject}
                 aria-describedby={errors.subject ? "subject-error" : undefined}
@@ -137,25 +134,12 @@ export function NewTicketDrawer({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ticketNumber" className="font-medium">
-                Número do Protocolo (Opcional)
-              </Label>
-              <Input
-                id="ticketNumber"
-                placeholder="Ex: TCK-1050 (ou gerado automaticamente)"
-                {...register("ticketNumber")}
-                disabled={isSubmitting}
-                className="w-full"
-              />
-            </div>
-
-            <div className="space-y-1.5">
               <Label htmlFor="chatRef" className="font-medium">
                 Referência do Chat (Opcional)
               </Label>
               <Input
                 id="chatRef"
-                placeholder="Ex: chat-042 (ou gerado automaticamente)"
+                placeholder="Ex: chat-042 (gerado automaticamente se vazio)"
                 {...register("chatRef")}
                 disabled={isSubmitting}
                 className="w-full"
