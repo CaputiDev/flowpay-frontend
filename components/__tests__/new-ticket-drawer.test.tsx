@@ -42,16 +42,12 @@ describe("NewTicketDrawer", () => {
     const subjectInput = screen.getByLabelText(/assunto/i);
     await user.type(subjectInput, "Solicitação de reembolso");
 
-    const chatRefInput = screen.getByLabelText(/referência do chat/i);
-    await user.type(chatRefInput, "chat-999");
-
     const submitButton = screen.getByRole("button", { name: /adicionar à fila/i });
     await user.click(submitButton);
 
     await waitFor(() => {
       expect(onSubmitTicket).toHaveBeenCalledWith({
         subject: "Solicitação de reembolso",
-        chatRef: "chat-999",
       });
       expect(onOpenChange).toHaveBeenCalledWith(false);
     });

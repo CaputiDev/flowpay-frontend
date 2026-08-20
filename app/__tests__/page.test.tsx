@@ -111,6 +111,40 @@ describe("Dashboard Page", () => {
     expect(screen.getByRole("button", { name: /finalizar atendimento #991/i })).toBeInTheDocument();
   });
 
+  it("should switch between mobile tabs (overview, active, waiting)", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
+      filas: mockFilas,
+      activeQueue: mockActive,
+      waitingQueue: mockWaiting,
+      teamSummaries: mockFilas.teamSummaries,
+      isLoading: false,
+      isError: undefined,
+      mutate: vi.fn(),
+      createAtendimento: vi.fn(),
+      finishAtendimento: vi.fn(),
+    });
+
+    render(<Dashboard />);
+
+    const overviewTab = screen.getByRole("tab", { name: /visão geral/i });
+    const activeTab = screen.getByRole("tab", { name: /ativas/i });
+    const waitingTab = screen.getByRole("tab", { name: /espera/i });
+
+    expect(overviewTab).toBeInTheDocument();
+    expect(activeTab).toBeInTheDocument();
+    expect(waitingTab).toBeInTheDocument();
+
+    await user.click(activeTab);
+    expect(activeTab).toHaveAttribute("aria-selected", "true");
+
+    await user.click(waitingTab);
+    expect(waitingTab).toHaveAttribute("aria-selected", "true");
+
+    await user.click(overviewTab);
+    expect(overviewTab).toHaveAttribute("aria-selected", "true");
+  });
+
   it("should render empty state messages when both queues are empty", () => {
     vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
       filas: { activeQueue: [], waitingQueue: [], teamSummaries: [] },
