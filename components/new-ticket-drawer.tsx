@@ -25,7 +25,6 @@ const ticketFormSchema = z.object({
     .string()
     .trim()
     .min(3, { message: "O assunto é obrigatório e deve ter no mínimo 3 caracteres." }),
-  chatRef: z.string().trim().optional(),
 });
 
 type TicketFormData = z.infer<typeof ticketFormSchema>;
@@ -53,7 +52,6 @@ export function NewTicketDrawer({
     resolver: zodResolver(ticketFormSchema),
     defaultValues: {
       subject: "",
-      chatRef: "",
     },
   });
 
@@ -62,7 +60,6 @@ export function NewTicketDrawer({
       setIsSubmitting(true);
       await onSubmitTicket({
         subject: data.subject,
-        chatRef: data.chatRef || undefined,
       });
 
       toast({
@@ -131,19 +128,6 @@ export function NewTicketDrawer({
                   {errors.subject.message}
                 </p>
               )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="chatRef" className="font-medium">
-                Referência do Chat (Opcional)
-              </Label>
-              <Input
-                id="chatRef"
-                placeholder="Ex: chat-042 (gerado automaticamente se vazio)"
-                {...register("chatRef")}
-                disabled={isSubmitting}
-                className="w-full"
-              />
             </div>
           </form>
         </div>

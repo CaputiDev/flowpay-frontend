@@ -142,11 +142,10 @@ export default function Dashboard() {
               role="tab"
               aria-selected={mobileTab === "overview"}
               onClick={() => setMobileTab("overview")}
-              className={`py-1.5 px-2 rounded-md transition-all flex items-center justify-center gap-1.5 ${
-                mobileTab === "overview"
-                  ? "bg-card text-foreground shadow-xs font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`py-1.5 px-2 rounded-md transition-all flex items-center justify-center gap-1.5 ${mobileTab === "overview"
+                ? "bg-card text-foreground shadow-xs font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               <BarChart3 className="h-3.5 w-3.5" />
               <span>Visão Geral</span>
@@ -157,11 +156,10 @@ export default function Dashboard() {
               role="tab"
               aria-selected={mobileTab === "active"}
               onClick={() => setMobileTab("active")}
-              className={`py-1.5 px-2 rounded-md transition-all flex items-center justify-center gap-1.5 ${
-                mobileTab === "active"
-                  ? "bg-card text-foreground shadow-xs font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`py-1.5 px-2 rounded-md transition-all flex items-center justify-center gap-1.5 ${mobileTab === "active"
+                ? "bg-card text-foreground shadow-xs font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
               <span>Ativas</span>
@@ -177,11 +175,10 @@ export default function Dashboard() {
               role="tab"
               aria-selected={mobileTab === "waiting"}
               onClick={() => setMobileTab("waiting")}
-              className={`py-1.5 px-2 rounded-md transition-all flex items-center justify-center gap-1.5 ${
-                mobileTab === "waiting"
-                  ? "bg-card text-foreground shadow-xs font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`py-1.5 px-2 rounded-md transition-all flex items-center justify-center gap-1.5 ${mobileTab === "waiting"
+                ? "bg-card text-foreground shadow-xs font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               <Users className="h-3.5 w-3.5 text-amber-500" />
               <span>Espera</span>
@@ -221,9 +218,8 @@ export default function Dashboard() {
 
         {/* 1. SEÇÃO DE VISÃO GERAL (Sempre visível no Desktop; Visível no Mobile na aba "overview") */}
         <section
-          className={`space-y-4 ${
-            mobileTab === "overview" ? "block" : "hidden md:block"
-          }`}
+          className={`space-y-4 ${mobileTab === "overview" ? "block" : "hidden md:block"
+            }`}
           aria-label="Visão Geral do Sistema"
         >
           {/* KPI Cards de Destaque */}
@@ -249,9 +245,6 @@ export default function Dashboard() {
               <div className="text-xl sm:text-2xl font-bold text-foreground">
                 {isLoading ? <Skeleton className="h-7 w-12" /> : totalWaiting}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Chamados na ordem FIFO
-              </p>
             </Card>
 
             <Card className="p-3.5 sm:p-4 bg-card/70 border shadow-2xs">
@@ -282,9 +275,6 @@ export default function Dashboard() {
                   </>
                 )}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Roteamento 100% ativo
-              </p>
             </Card>
           </div>
 
@@ -322,13 +312,12 @@ export default function Dashboard() {
                     <div className="space-y-1">
                       <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-300 ${
-                            isFull
-                              ? "bg-amber-500"
-                              : percent > 70
+                          className={`h-full transition-all duration-300 ${isFull
+                            ? "bg-amber-500"
+                            : percent > 70
                               ? "bg-primary"
                               : "bg-emerald-500"
-                          }`}
+                            }`}
                           style={{ width: `${Math.min(percent, 100)}%` }}
                         />
                       </div>
@@ -366,9 +355,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-start w-full">
           {/* Lado Esquerdo / Aba 2: Fila Ativa */}
           <Card
-            className={`w-full overflow-hidden shadow-sm border ${
-              mobileTab === "active" ? "block" : "hidden md:block"
-            }`}
+            className={`w-full overflow-hidden shadow-sm border ${mobileTab === "active" ? "block" : "hidden md:block"
+              }`}
           >
             <CardHeader className="flex flex-row items-center justify-between pb-3 bg-muted/20 border-b px-4 py-3">
               <div>
@@ -502,9 +490,8 @@ export default function Dashboard() {
 
           {/* Lado Direito / Aba 3: Fila de Espera */}
           <Card
-            className={`w-full overflow-hidden shadow-sm border ${
-              mobileTab === "waiting" ? "block" : "hidden md:block"
-            }`}
+            className={`w-full overflow-hidden shadow-sm border ${mobileTab === "waiting" ? "block" : "hidden md:block"
+              }`}
           >
             <CardHeader className="flex flex-row items-center justify-between pb-3 bg-muted/20 border-b px-4 py-3">
               <div>
