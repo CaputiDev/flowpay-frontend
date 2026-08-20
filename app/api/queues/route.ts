@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { QueueStatusResponse, TicketResponse, ErrorResponse } from "@/app/types/atendimento";
 
 export async function GET() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -13,21 +14,18 @@ export async function GET() {
     });
 
     if (!res.ok) {
+      const err: Partial<ErrorResponse> = await res.json().catch(() => ({}));
       return NextResponse.json(
-        { error: `Falha ao consultar filas no backend (${res.status})` },
+        { error: err.message || err.error || `Falha ao consultar status das filas (${res.status})` },
         { status: res.status }
       );
     }
 
-    const data = await res.json();
-    return NextResponse.json({
-      filaAtiva: data.filaAtiva ?? data.activeQueue ?? [],
-      filaEspera: data.filaEspera ?? data.waitingQueue ?? [],
-      teamSummaries: data.teamSummaries ?? [],
-    });
+    const data: QueueStatusResponse = await res.json();
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json(
-      { error: "Erro de conexão com o backend Spring Boot." },
+      { error: "Erro de conexão com o servidor backend Spring Boot." },
       { status: 502 }
     );
   }
@@ -46,6 +44,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Se a referência do chat não for informada, gera automaticamente para atender ao contrato do backend
+    const chatRef =
+      typeof body.chatRef === "string" && body.chatRef.trim() !== ""
+        ? body.chatRef.trim()
+        : `chat-${Math.floor(1000 + Math.random() * 9000)}`;
+
     const res = await fetch(`${apiUrl}/v1/tickets`, {
       method: "POST",
       headers: {
@@ -53,22 +57,19 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         subject: body.subject.trim(),
-        ticketNumber: body.ticketNumber?.trim() || undefined,
-        chatRef: body.chatRef?.trim() || undefined,
-        queueId: body.queueId,
-        agentId: body.agentId,
+        chatRef,
       }),
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
+      const err: Partial<ErrorResponse> = await res.json().catch(() => ({}));
       return NextResponse.json(
-        { error: err.message || err.error || `Falha ao criar atendimento (${res.status})` },
+        { error: err.message || err.error || `Falha ao criar chamado (${res.status})` },
         { status: res.status }
       );
     }
 
-    const created = await res.json();
+    const created: TicketResponse = await res.json();
     return NextResponse.json(created, { status: res.status });
   } catch {
     return NextResponse.json(
