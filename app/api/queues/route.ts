@@ -1,15 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import mockData from "./mock.json";
-import { Atendimento } from "@/app/types/atendimento";
 
 export async function GET() {
-  // Atraso artificial para simular a latência da rede e permitir visualização dos skeletons
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
-  return NextResponse.json(mockData);
+  try {
+    const res = await fetch(`${apiUrl}/v1/queues/status`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: `Falha ao consultar filas no backend (${res.status})` },
+        { status: res.status }
+      );
+    }
+
+    const data = await res.json();
+    return NextResponse.json({
+      filaAtiva: data.filaAtiva ?? data.activeQueue ?? [],
+      filaEspera: data.filaEspera ?? data.waitingQueue ?? [],
+      teamSummaries: data.teamSummaries ?? [],
+    });
+  } catch {
+    return NextResponse.json(
+      { error: "Erro de conexão com o backend Spring Boot." },
+      { status: 502 }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
   try {
     const body = await request.json();
 
@@ -20,23 +46,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Simula tempo de processamento no Spring Boot BFF
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    const res = await fetch(`${apiUrl}/v1/tickets`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        subject: body.subject.trim(),
+        ticketNumber: body.ticketNumber?.trim() || undefined,
+        chatRef: body.chatRef?.trim() || undefined,
+        queueId: body.queueId,
+        agentId: body.agentId,
+      }),
+    });
 
-    const novoAtendimento: Atendimento = {
-      id: crypto.randomUUID(),
-      ticketNumber: body.ticketNumber?.trim() || `TCK-${Math.floor(100 + Math.random() * 900)}`,
-      chatRef: body.chatRef?.trim() || `chat-${Math.floor(100 + Math.random() * 900)}`,
-      subject: body.subject.trim(),
-      status: "WAITING",
-      errorMsg: null,
-      createdAt: new Date().toISOString(),
-      finishedAt: null,
-      queueId: body.queueId || "46145c40-f16d-4e7b-b5b5-368423a21141",
-      agentId: body.agentId || "0f9ce0b9-c65a-4b31-9f03-13f32cab6317",
-    };
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      return NextResponse.json(
+        { error: err.message || err.error || `Falha ao criar atendimento (${res.status})` },
+        { status: res.status }
+      );
+    }
 
-    return NextResponse.json(novoAtendimento, { status: 201 });
+    const created = await res.json();
+    return NextResponse.json(created, { status: res.status });
   } catch {
     return NextResponse.json(
       { error: "Erro interno ao processar requisição." },
