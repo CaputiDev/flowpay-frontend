@@ -4,32 +4,28 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
   try {
     const { id } = await context.params;
-    const simulateError =
-      request.headers.get("x-simulate-error") === "true" ||
-      request.nextUrl.searchParams.get("error") === "500" ||
-      id.includes("error");
 
-    // Simulação de latência de rede
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    const res = await fetch(`${apiUrl}/v1/tickets/${encodeURIComponent(id)}/finish`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-    if (simulateError) {
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
       return NextResponse.json(
-        { error: "Falha interna no servidor legado ao finalizar atendimento." },
-        { status: 500 }
+        { error: err.message || err.error || `Falha ao finalizar atendimento (${res.status})` },
+        { status: res.status }
       );
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        id,
-        status: "FINISHED",
-        finishedAt: new Date().toISOString(),
-      },
-      { status: 200 }
-    );
+    const data = await res.json().catch(() => ({ success: true, id, status: "FINISHED" }));
+    return NextResponse.json(data, { status: 200 });
   } catch {
     return NextResponse.json(
       { error: "Erro inesperado ao finalizar atendimento." },
