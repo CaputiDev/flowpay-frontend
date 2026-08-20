@@ -1,26 +1,30 @@
 "use client";
 
 import useSWR from "swr";
-import { FilaResponse, Atendimento } from "@/app/types/atendimento";
+import {
+  QueueStatusResponse,
+  TicketResponse,
+  ActiveTicketDto,
+  WaitingTicketDto,
+  TeamSummaryDto,
+} from "@/app/types/atendimento";
 
-const fetcher = async (url: string): Promise<FilaResponse> => {
+const fetcher = async (url: string): Promise<QueueStatusResponse> => {
   const res = await fetch(url);
   if (!res.ok) {
-    throw new Error(`Erro na requisição: ${res.status}`);
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Erro na requisição: ${res.status}`);
   }
   return res.json();
 };
 
 export interface CreateAtendimentoInput {
   subject: string;
-  ticketNumber?: string;
   chatRef?: string;
-  queueId?: string;
-  agentId?: string;
 }
 
 export function useQueues() {
-  const { data, error, isLoading, mutate } = useSWR<FilaResponse>(
+  const { data, error, isLoading, mutate } = useSWR<QueueStatusResponse>(
     "/api/queues",
     fetcher,
     {
@@ -32,9 +36,11 @@ export function useQueues() {
   );
 
   /**
-   * Cria um novo atendimento via BFF e injeta no cache SWR em memória
+   * Cria um novo atendimento via BFF e revalida os dados da fila
    */
-  const createAtendimento = async (input: CreateAtendimentoInput): Promise<Atendimento> => {
+  const createAtendimento = async (
+    input: CreateAtendimentoInput
+  ): Promise<TicketResponse> => {
     const res = await fetch("/api/queues", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -46,43 +52,23 @@ export function useQueues() {
       throw new Error(err.error || `Falha ao criar chamado (${res.status})`);
     }
 
-    const novoAtendimento: Atendimento = await res.json();
+    const novoTicket: TicketResponse = await res.json();
 
-    // Atualiza o cache do SWR localmente sem reescrever o arquivo no servidor
-    await mutate(
-      (currentData) => {
-        if (!currentData) {
-          return { filaAtiva: [], filaEspera: [novoAtendimento] };
-        }
-        return {
-          ...currentData,
-          filaEspera: [novoAtendimento, ...currentData.filaEspera],
-        };
-      },
-      false
-    );
+    // Revalida para sincronizar com o estado em tempo real retornado pelo backend
+    await mutate();
 
-    return novoAtendimento;
+    return novoTicket;
   };
 
   /**
-   * Finaliza um atendimento na fila ativa (Pessimistic UI)
+   * Finaliza um atendimento ativo e revalida a fila
    */
   const finishAtendimento = async (
-    id: string,
-    options?: { simulateError?: boolean }
-  ): Promise<{ success: boolean; id: string }> => {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    if (options?.simulateError) {
-      headers["x-simulate-error"] = "true";
-    }
-
+    id: string
+  ): Promise<TicketResponse> => {
     const res = await fetch(`/api/queues/${encodeURIComponent(id)}/finish`, {
-      method: "POST",
-      headers,
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
     });
 
     if (!res.ok) {
@@ -90,25 +76,19 @@ export function useQueues() {
       throw new Error(err.error || `Falha ao finalizar atendimento (${res.status})`);
     }
 
-    const result = await res.json();
+    const result: TicketResponse = await res.json();
 
-    // Remove do cache apenas após confirmação HTTP 200
-    await mutate(
-      (currentData) => {
-        if (!currentData) return currentData;
-        return {
-          ...currentData,
-          filaAtiva: currentData.filaAtiva.filter((item) => item.id !== id),
-        };
-      },
-      false
-    );
+    // Revalida as filas para refletir a nova carga do atendente e a transição FIFO
+    await mutate();
 
     return result;
   };
 
   return {
     filas: data,
+    activeQueue: data?.activeQueue ?? [],
+    waitingQueue: data?.waitingQueue ?? [],
+    teamSummaries: data?.teamSummaries ?? [],
     isLoading,
     isError: error,
     mutate,
