@@ -4,9 +4,6 @@ import useSWR from "swr";
 import {
   QueueStatusResponse,
   TicketResponse,
-  ActiveTicketDto,
-  WaitingTicketDto,
-  TeamSummaryDto,
 } from "@/app/types/atendimento";
 
 const fetcher = async (url: string): Promise<QueueStatusResponse> => {

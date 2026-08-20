@@ -28,7 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { useQueues } from "@/app/hooks/useQueues";
 import { NewTicketDrawer } from "@/components/new-ticket-drawer";
-import { TEAM_LABELS, TEAM_VARIANTS, Team } from "@/app/types/atendimento";
+import { TEAM_LABELS, TEAM_VARIANTS } from "@/app/types/atendimento";
 
 export default function Dashboard() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
