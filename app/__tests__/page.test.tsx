@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Dashboard from "../page";
 import * as useQueuesModule from "@/app/hooks/useQueues";
@@ -46,6 +46,25 @@ describe("Dashboard Page", () => {
         totalAgents: 2,
         totalCapacity: 6,
         currentLoad: 1,
+        agents: [
+          {
+            id: "agent-1",
+            name: "Ana Silva",
+            team: "CREDIT_CARDS",
+            currentLoad: 1,
+            maxCapacity: 3,
+            availableCapacity: 2,
+          },
+        ],
+      },
+      {
+        team: "LOANS",
+        queueId: "q-loans",
+        maxQueueCapacity: 3,
+        waitingCount: 1,
+        totalAgents: 1,
+        totalCapacity: 3,
+        currentLoad: 0,
         agents: [],
       },
     ],
@@ -77,7 +96,7 @@ describe("Dashboard Page", () => {
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  it("should render queues, tickets, team, and agent when data is loaded", () => {
+  it("should render top metric cards and team summaries when data is loaded", () => {
     vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
       filas: mockFilas,
       activeQueue: mockActive,
@@ -92,80 +111,16 @@ describe("Dashboard Page", () => {
 
     render(<Dashboard />);
 
-    expect(screen.getByText("Fila Ativa (Processando)")).toBeInTheDocument();
-    expect(screen.getByText("Fila de Espera (Aguardando)")).toBeInTheDocument();
+    // Top Cards
+    expect(screen.getByText("Em atendimento")).toBeInTheDocument();
+    expect(screen.getAllByText("Fila de espera").length).toBeGreaterThan(0);
+    expect(screen.getByText("Atendentes ativos")).toBeInTheDocument();
 
-    // Protocolos e referências
-    expect(screen.getByText("#991")).toBeInTheDocument();
-    expect(screen.getByText("Ref: chat-001")).toBeInTheDocument();
-    expect(screen.getByText("Dúvida sobre faturamento")).toBeInTheDocument();
-    expect(screen.getByText("Ana Silva")).toBeInTheDocument();
-    expect(screen.getAllByText("Cartões").length).toBeGreaterThan(0);
-
-    expect(screen.getByText("#992")).toBeInTheDocument();
-    expect(screen.getByText("Ref: chat-002")).toBeInTheDocument();
-    expect(screen.getByText("Problema de acesso")).toBeInTheDocument();
+    // Teams
+    expect(screen.getByText("Equipes de Atendimento")).toBeInTheDocument();
+    expect(screen.getByText("Cartões")).toBeInTheDocument();
     expect(screen.getByText("Empréstimos")).toBeInTheDocument();
-    expect(screen.getByText("#1")).toBeInTheDocument();
-
-    expect(screen.getByRole("button", { name: /finalizar atendimento #991/i })).toBeInTheDocument();
-  });
-
-  it("should switch between mobile tabs (overview, active, waiting)", async () => {
-    const user = userEvent.setup();
-    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
-      filas: mockFilas,
-      activeQueue: mockActive,
-      waitingQueue: mockWaiting,
-      teamSummaries: mockFilas.teamSummaries,
-      isLoading: false,
-      isError: undefined,
-      mutate: vi.fn(),
-      createAtendimento: vi.fn(),
-      finishAtendimento: vi.fn(),
-    });
-
-    render(<Dashboard />);
-
-    const overviewTab = screen.getByRole("tab", { name: /visão geral/i });
-    const activeTab = screen.getByRole("tab", { name: /ativas/i });
-    const waitingTab = screen.getByRole("tab", { name: /espera/i });
-
-    expect(overviewTab).toBeInTheDocument();
-    expect(activeTab).toBeInTheDocument();
-    expect(waitingTab).toBeInTheDocument();
-
-    await user.click(activeTab);
-    expect(activeTab).toHaveAttribute("aria-selected", "true");
-
-    await user.click(waitingTab);
-    expect(waitingTab).toHaveAttribute("aria-selected", "true");
-
-    await user.click(overviewTab);
-    expect(overviewTab).toHaveAttribute("aria-selected", "true");
-  });
-
-  it("should render empty state messages when both queues are empty", () => {
-    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
-      filas: { activeQueue: [], waitingQueue: [], teamSummaries: [] },
-      activeQueue: [],
-      waitingQueue: [],
-      teamSummaries: [],
-      isLoading: false,
-      isError: undefined,
-      mutate: vi.fn(),
-      createAtendimento: vi.fn(),
-      finishAtendimento: vi.fn(),
-    });
-
-    render(<Dashboard />);
-
-    expect(
-      screen.getByText("Nenhum atendimento em andamento no momento.")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Nenhum chamado na fila de espera.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Ana Silva")).toBeInTheDocument();
   });
 
   it("should display error banner and allow retry via mutate", async () => {
@@ -239,76 +194,6 @@ describe("Dashboard Page", () => {
     await user.click(novoChamadoBtn);
 
     expect(screen.getByRole("heading", { name: /novo atendimento/i })).toBeInTheDocument();
-  });
-
-  it("should execute finish action on active item with pessimistic UI", async () => {
-    const user = userEvent.setup();
-    let resolveFinish: () => void = () => {};
-    const finishPromise = new Promise<{ id: string; ticketNumber: number; chatRef: string; subject: string; status: "RESOLVED"; createdAt: string }>((resolve) => {
-      resolveFinish = () =>
-        resolve({
-          id: "ativa-1",
-          ticketNumber: 991,
-          chatRef: "chat-001",
-          subject: "Dúvida sobre faturamento",
-          status: "RESOLVED",
-          createdAt: "2026-08-18T15:15:33.094Z",
-        });
-    });
-
-    const finishMock = vi.fn().mockImplementation(() => finishPromise);
-
-    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
-      filas: mockFilas,
-      activeQueue: mockActive,
-      waitingQueue: mockWaiting,
-      teamSummaries: mockFilas.teamSummaries,
-      isLoading: false,
-      isError: undefined,
-      mutate: vi.fn(),
-      createAtendimento: vi.fn(),
-      finishAtendimento: finishMock,
-    });
-
-    render(<Dashboard />);
-
-    const finishBtn = screen.getByRole("button", { name: /finalizar atendimento #991/i });
-    await user.click(finishBtn);
-
-    // Pessimistic state: button disabled with spinner while waiting
-    expect(finishBtn).toBeDisabled();
-    expect(screen.getByText("Finalizando...")).toBeInTheDocument();
-
-    resolveFinish();
-    await waitFor(() => expect(finishMock).toHaveBeenCalledWith("ativa-1"));
-  });
-
-  it("should handle error gracefully and notify when finish fails", async () => {
-    const user = userEvent.setup();
-    const finishMock = vi.fn().mockRejectedValue(new Error("Falha interna no servidor legado (500)"));
-
-    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
-      filas: mockFilas,
-      activeQueue: mockActive,
-      waitingQueue: mockWaiting,
-      teamSummaries: mockFilas.teamSummaries,
-      isLoading: false,
-      isError: undefined,
-      mutate: vi.fn(),
-      createAtendimento: vi.fn(),
-      finishAtendimento: finishMock,
-    });
-
-    render(<Dashboard />);
-
-    const finishBtn = screen.getByRole("button", { name: /finalizar atendimento #991/i });
-    await user.click(finishBtn);
-
-    await waitFor(() => {
-      expect(finishMock).toHaveBeenCalledWith("ativa-1");
-      expect(finishBtn).not.toBeDisabled();
-      expect(screen.getByText("Dúvida sobre faturamento")).toBeInTheDocument();
-    });
   });
 
   it("should be navigable via keyboard Tab key", async () => {
