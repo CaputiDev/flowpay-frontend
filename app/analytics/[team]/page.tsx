@@ -1,0 +1,408 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { AppShell } from "@/components/app-shell";
+import { useAnalytics, formatDuration, formatMonthLabel } from "@/app/hooks/useAnalytics";
+import { KpiCard } from "@/components/analytics/kpi-card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Team, TEAM_LABELS, TEAM_VARIANTS, TeamMetricDto } from "@/app/types/atendimento";
+import {
+  CreditCard,
+  Landmark,
+  HelpCircle,
+  BarChart3,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Timer,
+  Calendar,
+  AlertTriangle,
+  ArrowLeft,
+  Layers,
+} from "lucide-react";
+
+const TEAM_ICONS: Record<Team, typeof CreditCard> = {
+  CREDIT_CARDS: CreditCard,
+  LOANS: Landmark,
+  OTHERS: HelpCircle,
+};
+
+const TEAM_THEMES: Record<
+  Team,
+  {
+    iconBg: string;
+    iconColor: string;
+  }
+> = {
+  CREDIT_CARDS: {
+    iconBg: "bg-blue-500/10 dark:bg-blue-500/20",
+    iconColor: "text-blue-600 dark:text-blue-400",
+  },
+  LOANS: {
+    iconBg: "bg-amber-500/10 dark:bg-amber-500/20",
+    iconColor: "text-amber-600 dark:text-amber-400",
+  },
+  OTHERS: {
+    iconBg: "bg-purple-500/10 dark:bg-purple-500/20",
+    iconColor: "text-purple-600 dark:text-purple-400",
+  },
+};
+
+export default function TeamAnalyticsPage() {
+  const params = useParams();
+  const rawTeam = (params?.team as string) || "CREDIT_CARDS";
+  const currentTeam = (rawTeam.toUpperCase() in TEAM_LABELS
+    ? rawTeam.toUpperCase()
+    : "CREDIT_CARDS") as Team;
+
+  const { monthlyMetrics, isLoading, isError, mutate } = useAnalytics();
+  const [selectedMonth, setSelectedMonth] = useState<string>("ALL");
+
+  const label = TEAM_LABELS[currentTeam];
+  const Icon = TEAM_ICONS[currentTeam] || HelpCircle;
+  const theme = TEAM_THEMES[currentTeam] || TEAM_THEMES.OTHERS;
+
+  // Extrai o histórico mensal apenas deste time
+  const teamMonthlyHistory = monthlyMetrics.map((m) => {
+    const tm: TeamMetricDto | undefined = m.byTeam?.[currentTeam];
+    return {
+      month: m.month,
+      totalTickets: tm?.totalTickets || 0,
+      resolvedTickets: tm?.resolvedTickets || 0,
+      rejectedTickets: tm?.rejectedTickets || 0,
+      avgWaitingTimeSeconds: tm?.avgWaitingTimeSeconds || 0,
+      avgServiceTimeSeconds: tm?.avgServiceTimeSeconds || 0,
+    };
+  });
+
+  // Métricas do período selecionado
+  const isAll = selectedMonth === "ALL";
+  let activeMetric: {
+    totalTickets: number;
+    resolvedTickets: number;
+    rejectedTickets: number;
+    avgWaitingTimeSeconds: number;
+    avgServiceTimeSeconds: number;
+  };
+
+  if (!isAll) {
+    const found = teamMonthlyHistory.find((h) => h.month === selectedMonth);
+    activeMetric = found || {
+      totalTickets: 0,
+      resolvedTickets: 0,
+      rejectedTickets: 0,
+      avgWaitingTimeSeconds: 0,
+      avgServiceTimeSeconds: 0,
+    };
+  } else {
+    // Consolida todos os meses deste time
+    let total = 0;
+    let resolved = 0;
+    let rejected = 0;
+    let waitingSum = 0;
+    let serviceSum = 0;
+    let count = 0;
+
+    teamMonthlyHistory.forEach((h) => {
+      total += h.totalTickets;
+      resolved += h.resolvedTickets;
+      rejected += h.rejectedTickets;
+      if (h.avgWaitingTimeSeconds > 0) {
+        waitingSum += h.avgWaitingTimeSeconds;
+        count++;
+      }
+      if (h.avgServiceTimeSeconds > 0) {
+        serviceSum += h.avgServiceTimeSeconds;
+      }
+    });
+
+    activeMetric = {
+      totalTickets: total,
+      resolvedTickets: resolved,
+      rejectedTickets: rejected,
+      avgWaitingTimeSeconds: count > 0 ? waitingSum / count : 0,
+      avgServiceTimeSeconds: count > 0 ? serviceSum / count : 0,
+    };
+  }
+
+  const successRate =
+    activeMetric.totalTickets > 0
+      ? Math.round((activeMetric.resolvedTickets / activeMetric.totalTickets) * 100)
+      : 100;
+
+  const maxHistoryVolume = Math.max(...teamMonthlyHistory.map((h) => h.totalTickets), 10);
+  const chartHeight = 180;
+
+  return (
+    <AppShell>
+      <div className="max-w-6xl mx-auto w-full space-y-8 py-2 md:py-4">
+        {/* Barra superior de navegação e atalhos */}
+        <div className="flex items-center justify-between gap-3 border-b border-border/40 pb-4">
+          <Button variant="ghost" size="sm" asChild className="gap-1.5 h-8 text-xs">
+            <Link href="/analytics">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Voltar ao Analytics Geral</span>
+            </Link>
+          </Button>
+        </div>
+
+        {/* Header da Equipe */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div
+              className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 border border-border/40 shadow-xs ${theme.iconBg} ${theme.iconColor}`}
+            >
+              <Icon className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                  Analytics: {label}
+                </h1>
+                <Badge variant={TEAM_VARIANTS[currentTeam] || "secondary"} className="text-xs">
+                  {label}
+                </Badge>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                Métricas históricas de atendimento, taxas de conclusão e SLA da equipe.
+              </p>
+            </div>
+          </div>
+
+          {/* Seletor de Mês */}
+          <div className="flex items-center gap-2 bg-muted/40 p-1 rounded-xl border border-border/60 shrink-0">
+            <Calendar className="h-4 w-4 text-muted-foreground ml-2" />
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="bg-transparent text-xs font-semibold text-foreground focus:outline-none pr-2 py-1 cursor-pointer"
+              aria-label="Filtrar período do time"
+            >
+              <option value="ALL">Todo o Histórico (Geral)</option>
+              {monthlyMetrics.map((m) => (
+                <option key={m.month} value={m.month}>
+                  {formatMonthLabel(m.month)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Banner de Erro */}
+        {isError && (
+          <div
+            role="alert"
+            className="rounded-xl border border-destructive/50 bg-destructive/10 p-4 text-xs sm:text-sm text-destructive flex items-center gap-3 shadow-xs"
+          >
+            <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+            <div className="flex-1">
+              <span className="font-semibold">Erro ao carregar métricas:</span> Não foi possível
+              sincronizar os dados analíticos desta equipe.
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => mutate()}
+              className="shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10 h-8 text-xs font-medium"
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        )}
+
+        {/* 1. CARDS DE KPIS DO TIME */}
+        <section aria-label="KPIs da Equipe">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+            {/* Card 1: Total de Chamados */}
+            <KpiCard
+              title="Chamados Atribuídos"
+              value={activeMetric.totalTickets}
+              subtitle={`${activeMetric.resolvedTickets} finalizados com sucesso`}
+              icon={Layers}
+              variant="blue"
+              isLoading={isLoading}
+            />
+
+            {/* Card 2: Taxa de Resolução */}
+            <KpiCard
+              title="Taxa de Resolução"
+              value={`${successRate}%`}
+              subtitle={`${activeMetric.resolvedTickets} de ${activeMetric.totalTickets} concluídos`}
+              icon={CheckCircle2}
+              variant="emerald"
+              isLoading={isLoading}
+            />
+
+            {/* Card 3: Chamados Recusados */}
+            <KpiCard
+              title="Recusados (Fila Cheia)"
+              value={activeMetric.rejectedTickets}
+              subtitle={
+                activeMetric.rejectedTickets > 0
+                  ? "Capacidade máxima de fila excedida"
+                  : "Nenhum transbordo recusado"
+              }
+              icon={XCircle}
+              variant={activeMetric.rejectedTickets > 0 ? "rose" : "default"}
+              isLoading={isLoading}
+            />
+
+            {/* Card 4: Tempo Médio de Espera */}
+            <KpiCard
+              title="Tempo Médio em Fila"
+              value={formatDuration(activeMetric.avgWaitingTimeSeconds)}
+              subtitle="Tempo até operador assumir"
+              icon={Clock}
+              variant="amber"
+              isLoading={isLoading}
+            />
+          </div>
+        </section>
+
+        {/* 2. GRÁFICO MENSAL EXCLUSIVO DA EQUIPE */}
+        <section aria-label="Histórico Mensal da Equipe">
+          <Card className="rounded-2xl bg-card/95 border shadow-xs overflow-hidden">
+            <CardHeader className="p-5 sm:p-6 pb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <CardTitle className="text-base font-bold flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-[#015193]" />
+                    <span>Histórico Mensal de {label}</span>
+                  </CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                    Evolução do volume de chamados recebidos, finalizados e recusados pela equipe
+                  </CardDescription>
+                </div>
+
+                {/* Legenda */}
+                <div className="flex items-center gap-4 text-xs font-medium">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-xs bg-[#015193]" />
+                    <span className="text-muted-foreground">Total</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-xs bg-emerald-500" />
+                    <span className="text-muted-foreground">Resolvidos</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-xs bg-rose-500" />
+                    <span className="text-muted-foreground">Recusados</span>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="p-5 sm:p-6 pt-4">
+              {teamMonthlyHistory.length === 0 ? (
+                <div className="h-[200px] flex items-center justify-center text-xs text-muted-foreground">
+                  Sem dados históricos suficientes para exibir o gráfico mensal.
+                </div>
+              ) : (
+                <div className="flex items-end justify-around gap-2 sm:gap-6 h-[200px] pb-8 border-b border-border/40">
+                  {teamMonthlyHistory.map((item) => {
+                    const totalHeight = Math.max(
+                      (item.totalTickets / maxHistoryVolume) * chartHeight,
+                      6
+                    );
+                    const resolvedHeight = Math.max(
+                      (item.resolvedTickets / maxHistoryVolume) * chartHeight,
+                      4
+                    );
+                    const rejectedHeight =
+                      item.rejectedTickets > 0
+                        ? Math.max((item.rejectedTickets / maxHistoryVolume) * chartHeight, 4)
+                        : 0;
+
+                    return (
+                      <div
+                        key={item.month}
+                        className="flex-1 flex flex-col items-center justify-end h-full relative group cursor-pointer"
+                      >
+                        <div className="flex items-end gap-1 sm:gap-1.5 w-full max-w-[60px] justify-center">
+                          <div
+                            className="w-3 sm:w-4 rounded-t-md bg-[#015193] transition-all duration-300 hover:opacity-100 opacity-85"
+                            style={{ height: `${totalHeight}px` }}
+                            title={`Total: ${item.totalTickets}`}
+                          />
+                          <div
+                            className="w-3 sm:w-4 rounded-t-md bg-emerald-500 transition-all duration-300 hover:opacity-100 opacity-85"
+                            style={{ height: `${resolvedHeight}px` }}
+                            title={`Resolvidos: ${item.resolvedTickets}`}
+                          />
+                          {rejectedHeight > 0 && (
+                            <div
+                              className="w-2.5 sm:w-3.5 rounded-t-md bg-rose-500 transition-all duration-300 hover:opacity-100 opacity-85"
+                              style={{ height: `${rejectedHeight}px` }}
+                              title={`Recusados: ${item.rejectedTickets}`}
+                            />
+                          )}
+                        </div>
+
+                        <span className="absolute -bottom-6 text-[10px] sm:text-xs text-muted-foreground font-mono">
+                          {item.month.split("-")[1]}/{item.month.split("-")[0].slice(2)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* 3. SLA E TEMPO DE ATENDIMENTO DA EQUIPE */}
+        <section aria-label="Indicadores de SLA da Equipe">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6">
+            {/* Card Tempo em Fila */}
+            <Card className="p-5 sm:p-6 bg-card/95 border shadow-xs rounded-2xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                    Tempo Médio em Fila de Espera
+                  </span>
+                  <div className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                    <Clock className="h-4 w-4" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-baseline gap-2">
+                  <div className="text-3xl font-bold font-mono text-foreground">
+                    {formatDuration(activeMetric.avgWaitingTimeSeconds)}
+                  </div>
+                </div>
+              </div>
+              <p className="mt-4 pt-3 border-t border-border/40 text-xs text-muted-foreground">
+                Tempo que os clientes da fila de {label} aguardam até o início do atendimento.
+              </p>
+            </Card>
+
+            {/* Card Tempo de Atendimento */}
+            <Card className="p-5 sm:p-6 bg-card/95 border shadow-xs rounded-2xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                    Tempo Médio de Atendimento
+                  </span>
+                  <div className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
+                    <Timer className="h-4 w-4" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-baseline gap-2">
+                  <div className="text-3xl font-bold font-mono text-foreground">
+                    {formatDuration(activeMetric.avgServiceTimeSeconds)}
+                  </div>
+                </div>
+              </div>
+              <p className="mt-4 pt-3 border-t border-border/40 text-xs text-muted-foreground">
+                Duração média que os atendentes de {label} levam para resolver a solicitação.
+              </p>
+            </Card>
+          </div>
+        </section>
+      </div>
+    </AppShell>
+  );
+}

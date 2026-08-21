@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  BarChart3,
   CreditCard,
   Landmark,
   HelpCircle,
@@ -24,22 +25,31 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
-const NAV_TEAMS: { team: Team; href: string; icon: typeof CreditCard; label: string }[] = [
+const NAV_TEAMS: {
+  team: Team;
+  href: string;
+  analyticsHref: string;
+  icon: typeof CreditCard;
+  label: string;
+}[] = [
   {
     team: "CREDIT_CARDS",
     href: "/CREDIT_CARDS",
+    analyticsHref: "/analytics/CREDIT_CARDS",
     icon: CreditCard,
     label: TEAM_LABELS.CREDIT_CARDS,
   },
   {
     team: "LOANS",
     href: "/LOANS",
+    analyticsHref: "/analytics/LOANS",
     icon: Landmark,
     label: TEAM_LABELS.LOANS,
   },
   {
     team: "OTHERS",
     href: "/OTHERS",
+    analyticsHref: "/analytics/OTHERS",
     icon: HelpCircle,
     label: TEAM_LABELS.OTHERS,
   },
@@ -60,6 +70,34 @@ export function AppShell({ children }: AppShellProps) {
   const isDashboardActive = currentPath === "/dashboard" || currentPath === "/";
 
   const renderBreadcrumb = () => {
+    if (currentPath === "/analytics") {
+      return (
+        <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground">
+          <span>Analytics</span>
+        </div>
+      );
+    }
+
+    if (currentPath.startsWith("/analytics/")) {
+      const teamSlug = currentPath.replace("/analytics/", "").toUpperCase() as Team;
+      const teamLabel = TEAM_LABELS[teamSlug];
+
+      return (
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs sm:text-sm font-medium">
+          <Link
+            href="/analytics"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Analytics
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+          <span className="text-foreground font-semibold">
+            {teamLabel || teamSlug}
+          </span>
+        </nav>
+      );
+    }
+
     const teamSlug = currentPath.replace("/", "").toUpperCase() as Team;
 
     if (teamSlug in TEAM_LABELS) {
@@ -129,6 +167,7 @@ export function AppShell({ children }: AppShellProps) {
           <span>Novo Chamado</span>
         </Button>
 
+        {/* 1. SEÇÃO DASHBOARD */}
         <div>
           <div className="px-3 mb-2 text-[11px] font-semibold tracking-wider text-blue-100/70 uppercase">
             Dashboard
@@ -154,7 +193,7 @@ export function AppShell({ children }: AppShellProps) {
 
               return (
                 <Link
-                  key={item.team}
+                  key={`dash-${item.team}`}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
@@ -180,6 +219,50 @@ export function AppShell({ children }: AppShellProps) {
                       </span>
                     </div>
                   )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* 2. SEÇÃO ANALYTICS */}
+        <div>
+          <div className="px-3 mb-2 text-[11px] font-semibold tracking-wider text-blue-100/70 uppercase">
+            Analytics
+          </div>
+          <nav className="space-y-1">
+            <Link
+              href="/analytics"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                currentPath === "/analytics"
+                  ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                  : "text-blue-100/80 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <BarChart3 className="h-4 w-4 shrink-0" />
+              <span className="flex-1">Visão Geral</span>
+            </Link>
+
+            {NAV_TEAMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentPath === item.analyticsHref;
+
+              return (
+                <Link
+                  key={`analytics-${item.team}`}
+                  href={item.analyticsHref}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    isActive
+                      ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                      : "text-blue-100/80 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className="h-4 w-4 shrink-0 text-white" />
+                    <span className="truncate">{item.label}</span>
+                  </div>
                 </Link>
               );
             })}
