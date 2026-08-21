@@ -148,4 +148,63 @@ describe("TeamPage", () => {
       expect(finishMock).toHaveBeenCalledWith("ativa-cards-1");
     });
   });
+
+  it("should allow searching operators by name and collapsing section", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
+      filas: mockFilas,
+      activeQueue: mockActive,
+      waitingQueue: mockWaiting,
+      teamSummaries: mockFilas.teamSummaries,
+      isLoading: false,
+      isError: undefined,
+      mutate: vi.fn(),
+      createAtendimento: vi.fn(),
+      finishAtendimento: vi.fn(),
+    });
+
+    render(<TeamPage />);
+
+    const searchInput = screen.getByRole("textbox", { name: /pesquisar operador pelo nome/i });
+    await user.type(searchInput, "Inexistente");
+    expect(screen.getByText(/nenhum operador encontrado/i)).toBeInTheDocument();
+
+    await user.clear(searchInput);
+    expect(screen.getAllByText("Ana Silva").length).toBeGreaterThan(0);
+
+    const toggleBtn = screen.getByRole("button", { name: /expandir ou recolher operadores alocados/i });
+    await user.click(toggleBtn);
+    expect(screen.queryByRole("textbox", { name: /pesquisar operador pelo nome/i })).not.toBeInTheDocument();
+  });
+
+  it("should allow searching active queue and waiting queue", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
+      filas: mockFilas,
+      activeQueue: mockActive,
+      waitingQueue: mockWaiting,
+      teamSummaries: mockFilas.teamSummaries,
+      isLoading: false,
+      isError: undefined,
+      mutate: vi.fn(),
+      createAtendimento: vi.fn(),
+      finishAtendimento: vi.fn(),
+    });
+
+    render(<TeamPage />);
+
+    // Active search
+    const activeSearchInput = screen.getByRole("textbox", { name: /pesquisar chamados em atendimento/i });
+    await user.type(activeSearchInput, "limite");
+    expect(screen.getByText("Aumento de limite de cartão")).toBeInTheDocument();
+
+    await user.clear(activeSearchInput);
+    await user.type(activeSearchInput, "nada-aqui");
+    expect(screen.getByText(/nenhum atendimento encontrado/i)).toBeInTheDocument();
+
+    // Waiting search
+    const waitingSearchInput = screen.getByRole("textbox", { name: /pesquisar chamados na fila de espera/i });
+    await user.type(waitingSearchInput, "atraso");
+    expect(screen.getByText("Fatura em atraso")).toBeInTheDocument();
+  });
 });

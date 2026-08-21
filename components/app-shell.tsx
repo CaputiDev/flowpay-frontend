@@ -167,7 +167,7 @@ export function AppShell({ children }: AppShellProps) {
           aria-label="Criar novo atendimento"
         >
           <PlusCircle className="h-4 w-4" />
-          <span>Novo Atendimento</span>
+          <span>Novo Chamado</span>
         </Button>
 
         {/* 1. SEÇÃO DASHBOARD (COLAPSÁVEL) */}
@@ -191,8 +191,8 @@ export function AppShell({ children }: AppShellProps) {
                 href="/dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${isDashboardActive
-                    ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
-                    : "text-blue-100/80 hover:text-white hover:bg-white/10"
+                  ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                  : "text-blue-100/80 hover:text-white hover:bg-white/10"
                   }`}
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" />
@@ -210,8 +210,8 @@ export function AppShell({ children }: AppShellProps) {
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${isActive
-                        ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
-                        : "text-blue-100/80 hover:text-white hover:bg-white/10"
+                      ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                      : "text-blue-100/80 hover:text-white hover:bg-white/10"
                       }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -221,10 +221,10 @@ export function AppShell({ children }: AppShellProps) {
                     {stats && (
                       <div className="flex items-center gap-1 shrink-0">
                         <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-md ${isActive
-                            ? "bg-white/20 text-white font-semibold"
-                            : stats.waitingCount > 0
-                              ? "bg-amber-400 text-slate-900 font-bold"
-                              : "bg-white/10 text-blue-100"
+                          ? "bg-white/20 text-white font-semibold"
+                          : stats.waitingCount > 0
+                            ? "bg-amber-400 text-slate-900 font-bold"
+                            : "bg-white/10 text-blue-100"
                           }`}>
                           {stats.currentLoad}/{stats.totalCapacity}
                         </span>
@@ -258,8 +258,8 @@ export function AppShell({ children }: AppShellProps) {
                 href="/analytics"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${currentPath === "/analytics"
-                    ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
-                    : "text-blue-100/80 hover:text-white hover:bg-white/10"
+                  ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                  : "text-blue-100/80 hover:text-white hover:bg-white/10"
                   }`}
               >
                 <BarChart3 className="h-4 w-4 shrink-0" />
@@ -276,8 +276,8 @@ export function AppShell({ children }: AppShellProps) {
                     href={item.analyticsHref}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${isActive
-                        ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
-                        : "text-blue-100/80 hover:text-white hover:bg-white/10"
+                      ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                      : "text-blue-100/80 hover:text-white hover:bg-white/10"
                       }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -340,7 +340,7 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
 
-      {/* Modal Dialog para Novo Atendimento */}
+      {/* Modal Dialog para Novo Chamado */}
       <NewTicketDrawer
         open={isDrawerOpen}
         onOpenChange={setIsDrawerOpen}

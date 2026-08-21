@@ -13,6 +13,20 @@ interface MonthlyBarChartProps {
 
 export function MonthlyBarChart({ data, isLoading }: MonthlyBarChartProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Ordena cronologicamente os meses (mais antigos à esquerda, mais atuais à direita)
+  const sortedData = React.useMemo(
+    () => (data ? [...data].sort((a, b) => a.month.localeCompare(b.month)) : []),
+    [data]
+  );
+
+  // Inicia a rolagem sempre pelo lado direito (data mais atual)
+  React.useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
+    }
+  }, [sortedData.length]);
 
   if (isLoading) {
     return (
@@ -36,8 +50,6 @@ export function MonthlyBarChart({ data, isLoading }: MonthlyBarChartProps) {
     );
   }
 
-  // Ordena cronologicamente os meses
-  const sortedData = [...data].sort((a, b) => a.month.localeCompare(b.month));
   const maxVolume = Math.max(...sortedData.map((d) => d.totalTickets), 1);
   const chartHeight = 200;
 
@@ -73,10 +85,13 @@ export function MonthlyBarChart({ data, isLoading }: MonthlyBarChartProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="p-5 sm:p-6 pt-4">
-        {/* Container do Gráfico SVG */}
-        <div className="relative w-full pt-4">
-          <div className="flex items-end justify-around gap-2 sm:gap-6 h-[220px] pb-8 border-b border-border/40">
+      <CardContent className="p-5 sm:p-6 pt-0">
+        {/* Container do Gráfico SVG com Scroll Horizontal e Top Padding para Tooltip */}
+        <div
+          ref={scrollContainerRef}
+          className="relative w-full pt-16 overflow-x-auto pb-4 scrollbar-thin scroll-smooth"
+        >
+          <div className="flex items-end justify-around gap-2 sm:gap-6 h-[220px] pb-8 border-b border-border/40 min-w-full w-max mx-auto px-4">
             {sortedData.map((item, index) => {
               const totalHeight = Math.max((item.totalTickets / maxVolume) * chartHeight, 6);
               const resolvedHeight = Math.max((item.resolvedTickets / maxVolume) * chartHeight, 4);
@@ -89,11 +104,11 @@ export function MonthlyBarChart({ data, isLoading }: MonthlyBarChartProps) {
               return (
                 <div
                   key={item.month}
-                  className="flex-1 flex flex-col items-center justify-end h-full relative group"
+                  className="flex-1 min-w-[64px] sm:min-w-[80px] flex flex-col items-center justify-end h-full relative group"
                 >
-                  {/* Tooltip flutuante */}
+                  {/* Tooltip flutuante na camada mais superior */}
                   {isHovered && (
-                    <div className="absolute -top-16 z-20 bg-popover text-popover-foreground border border-border shadow-lg rounded-xl px-3 py-2 text-xs min-w-[140px] pointer-events-none transition-all">
+                    <div className="absolute -top-14 z-50 bg-popover text-popover-foreground border border-border shadow-xl rounded-xl px-3 py-2 text-xs min-w-[140px] pointer-events-none transition-all">
                       <div className="font-bold text-[11px] mb-1">{formatMonthLabel(item.month)}</div>
                       <div className="flex justify-between gap-2 text-[10px]">
                         <span>Total:</span>

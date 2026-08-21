@@ -101,6 +101,8 @@ describe("TeamAnalyticsPage", () => {
 
     // August credit cards total is 60
     expect(screen.getAllByText("60").length).toBeGreaterThan(0);
+    // Historical monthly chart should be hidden when filtering by specific month
+    expect(screen.queryByText("Histórico Mensal de Cartões")).not.toBeInTheDocument();
   });
 
   it("should display error banner and allow retry", async () => {

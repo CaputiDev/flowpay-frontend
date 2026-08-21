@@ -225,21 +225,24 @@ export default function AnalyticsPage() {
           </div>
         </section>
 
-        {/* 2. GRÁFICOS VISUAIS */}
-        <section aria-label="Gráficos de Desempenho" className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
-          {/* Histórico Mensal */}
-          <MonthlyBarChart data={monthlyMetrics} isLoading={isLoading} />
+        {/* 2. GRÁFICO HISTÓRICO MENSAL (OCUPA 2 ESPAÇOS NO DESKTOP - EXIBIDO APENAS NO HISTÓRICO GERAL) */}
+        {isAll && (
+          <section aria-label="Histórico Mensal Geral">
+            <MonthlyBarChart data={monthlyMetrics} isLoading={isLoading} />
+          </section>
+        )}
 
-          {/* Distribuição por Equipe */}
+        {/* 3. DISTRIBUIÇÃO POR EQUIPE (OCUPA 2 ESPAÇOS NO DESKTOP) */}
+        <section aria-label="Distribuição por Equipe">
           <TeamDistributionChart data={activeByTeam} isLoading={isLoading} />
         </section>
 
-        {/* 3. SLA E TEMPOS MÉDIOS POR TIME */}
+        {/* 4. SLA E TEMPOS MÉDIOS POR TIME */}
         <section aria-label="SLA por Equipe">
           <SlaComparisonChart byTeam={activeByTeam} isLoading={isLoading} />
         </section>
 
-        {/* 4. CARDS DETALHADOS POR EQUIPE */}
+        {/* 5. CARDS DETALHADOS POR EQUIPE */}
         <section aria-label="Desempenho por Equipe" className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <h2 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
