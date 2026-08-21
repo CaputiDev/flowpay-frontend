@@ -89,7 +89,7 @@ describe("Dashboard Page", () => {
 
     const { container } = render(<Dashboard />);
 
-    expect(screen.getAllByText("Dashboard").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Visão Geral").length).toBeGreaterThan(0);
     expect(screen.getByText("Roteamento & Filas")).toBeInTheDocument();
 
     const skeletons = container.querySelectorAll("[data-slot='skeleton']");

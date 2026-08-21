@@ -68,7 +68,7 @@ export function AppShell({ children }: AppShellProps) {
             href="/"
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            Dashboard
+            Visão Geral
           </Link>
           <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
           <span className="text-foreground font-semibold">
@@ -80,7 +80,7 @@ export function AppShell({ children }: AppShellProps) {
 
     return (
       <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground">
-        <span>Dashboard</span>
+        <span>Visão Geral</span>
       </div>
     );
   };
@@ -141,7 +141,7 @@ export function AppShell({ children }: AppShellProps) {
               }`}
             >
               <LayoutDashboard className="h-4 w-4 shrink-0" />
-              <span className="flex-1">Dashboard Geral</span>
+              <span className="flex-1">Visão Geral</span>
             </Link>
           </nav>
         </div>
