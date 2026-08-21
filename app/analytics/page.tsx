@@ -42,9 +42,21 @@ export default function AnalyticsPage() {
   const successRate = totalNum > 0 ? Math.round((resolvedNum / totalNum) * 100) : 100;
 
   // Monta o mapa byTeam para os gráficos de time
-  let activeByTeam: Record<string, TeamMetricDto> = {};
+  const activeByTeam: Record<string, TeamMetricDto> = {};
   if (!isAll && currentMonthly?.byTeam) {
-    activeByTeam = currentMonthly.byTeam;
+    const teams: Team[] = ["CREDIT_CARDS", "LOANS", "OTHERS"];
+    teams.forEach((t) => {
+      const tm = currentMonthly.byTeam[t];
+      if (tm) {
+        activeByTeam[t] = {
+          ...tm,
+          avgServiceTimeSeconds:
+            tm.avgServiceTimeSeconds ??
+            ((tm as unknown as Record<string, unknown>)?.serviceTimeSeconds as number) ??
+            0,
+        };
+      }
+    });
   } else if (monthlyMetrics.length > 0) {
     // Consolida todos os meses por time
     const teams: Team[] = ["CREDIT_CARDS", "LOANS", "OTHERS"];
@@ -54,7 +66,8 @@ export default function AnalyticsPage() {
       let teamRejected = 0;
       let waitingSum = 0;
       let serviceSum = 0;
-      let count = 0;
+      let waitingCount = 0;
+      let serviceCount = 0;
 
       monthlyMetrics.forEach((m) => {
         const tm = m.byTeam?.[t];
@@ -62,12 +75,20 @@ export default function AnalyticsPage() {
           teamTotal += tm.totalTickets || 0;
           teamResolved += tm.resolvedTickets || 0;
           teamRejected += tm.rejectedTickets || 0;
-          if (tm.avgWaitingTimeSeconds > 0) {
-            waitingSum += tm.avgWaitingTimeSeconds;
-            count++;
+
+          const waitTime = tm.avgWaitingTimeSeconds ?? 0;
+          const servTime =
+            tm.avgServiceTimeSeconds ??
+            ((tm as unknown as Record<string, unknown>)?.serviceTimeSeconds as number) ??
+            0;
+
+          if (waitTime > 0) {
+            waitingSum += waitTime;
+            waitingCount++;
           }
-          if (tm.avgServiceTimeSeconds > 0) {
-            serviceSum += tm.avgServiceTimeSeconds;
+          if (servTime > 0) {
+            serviceSum += servTime;
+            serviceCount++;
           }
         }
       });
@@ -77,8 +98,8 @@ export default function AnalyticsPage() {
         totalTickets: teamTotal,
         resolvedTickets: teamResolved,
         rejectedTickets: teamRejected,
-        avgWaitingTimeSeconds: count > 0 ? waitingSum / count : 0,
-        avgServiceTimeSeconds: count > 0 ? serviceSum / count : 0,
+        avgWaitingTimeSeconds: waitingCount > 0 ? waitingSum / waitingCount : 0,
+        avgServiceTimeSeconds: serviceCount > 0 ? serviceSum / serviceCount : 0,
       };
     });
   }

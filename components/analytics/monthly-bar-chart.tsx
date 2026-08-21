@@ -38,7 +38,7 @@ export function MonthlyBarChart({ data, isLoading }: MonthlyBarChartProps) {
 
   // Ordena cronologicamente os meses
   const sortedData = [...data].sort((a, b) => a.month.localeCompare(b.month));
-  const maxVolume = Math.max(...sortedData.map((d) => d.totalTickets), 10);
+  const maxVolume = Math.max(...sortedData.map((d) => d.totalTickets), 1);
   const chartHeight = 200;
 
   return (
@@ -89,9 +89,7 @@ export function MonthlyBarChart({ data, isLoading }: MonthlyBarChartProps) {
               return (
                 <div
                   key={item.month}
-                  className="flex-1 flex flex-col items-center justify-end h-full relative group cursor-pointer"
-                  onMouseEnter={() => setHoveredIdx(index)}
-                  onMouseLeave={() => setHoveredIdx(null)}
+                  className="flex-1 flex flex-col items-center justify-end h-full relative group"
                 >
                   {/* Tooltip flutuante */}
                   {isHovered && (
@@ -115,7 +113,11 @@ export function MonthlyBarChart({ data, isLoading }: MonthlyBarChartProps) {
                   )}
 
                   {/* Barras agrupadas */}
-                  <div className="flex items-end gap-1 sm:gap-1.5 w-full max-w-[60px] justify-center">
+                  <div
+                    className="flex items-end gap-1 sm:gap-1.5 w-full max-w-[60px] justify-center cursor-pointer p-0.5 rounded-t-md hover:bg-muted/20 transition-colors"
+                    onMouseEnter={() => setHoveredIdx(index)}
+                    onMouseLeave={() => setHoveredIdx(null)}
+                  >
                     {/* Barra Total */}
                     <div
                       className={`w-3 sm:w-4 rounded-t-md bg-[#015193] transition-all duration-300 ${
@@ -147,7 +149,13 @@ export function MonthlyBarChart({ data, isLoading }: MonthlyBarChartProps) {
                   </div>
 
                   {/* Rótulo do Mês no eixo X */}
-                  <span className="absolute -bottom-6 text-[10px] sm:text-xs text-muted-foreground font-mono text-center truncate max-w-full">
+                  <span
+                    className={`absolute -bottom-6 text-[10px] sm:text-xs font-mono text-center truncate max-w-full cursor-pointer transition-colors ${
+                      isHovered ? "text-foreground font-semibold" : "text-muted-foreground"
+                    }`}
+                    onMouseEnter={() => setHoveredIdx(index)}
+                    onMouseLeave={() => setHoveredIdx(null)}
+                  >
                     {item.month.split("-")[1]}/{item.month.split("-")[0].slice(2)}
                   </span>
                 </div>

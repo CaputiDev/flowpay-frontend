@@ -27,11 +27,19 @@ export function SlaComparisonChart({ byTeam, isLoading }: SlaComparisonChartProp
 
   // Calcula o valor máximo de tempo para normalização das barras
   const maxTime = Math.max(
-    ...teams.flatMap((t) => [
-      byTeam?.[t]?.avgWaitingTimeSeconds || 0,
-      byTeam?.[t]?.avgServiceTimeSeconds || 0,
-    ]),
-    30
+    ...teams.flatMap((t) => {
+      const m = byTeam?.[t];
+      const wait =
+        m?.avgWaitingTimeSeconds ??
+        ((m as unknown as Record<string, unknown>)?.waitingTimeSeconds as number) ??
+        0;
+      const serv =
+        m?.avgServiceTimeSeconds ??
+        ((m as unknown as Record<string, unknown>)?.serviceTimeSeconds as number) ??
+        0;
+      return [wait, serv];
+    }),
+    1
   );
 
   return (
@@ -65,8 +73,14 @@ export function SlaComparisonChart({ byTeam, isLoading }: SlaComparisonChartProp
       <CardContent className="p-5 sm:p-6 pt-4 space-y-6">
         {teams.map((team) => {
           const metric = byTeam?.[team];
-          const waitingSecs = metric?.avgWaitingTimeSeconds || 0;
-          const serviceSecs = metric?.avgServiceTimeSeconds || 0;
+          const waitingSecs =
+            metric?.avgWaitingTimeSeconds ??
+            ((metric as unknown as Record<string, unknown>)?.waitingTimeSeconds as number) ??
+            0;
+          const serviceSecs =
+            metric?.avgServiceTimeSeconds ??
+            ((metric as unknown as Record<string, unknown>)?.serviceTimeSeconds as number) ??
+            0;
 
           const waitingPercent = Math.min((waitingSecs / maxTime) * 100, 100);
           const servicePercent = Math.min((serviceSecs / maxTime) * 100, 100);

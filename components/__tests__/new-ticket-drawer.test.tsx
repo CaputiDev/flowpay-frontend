@@ -53,6 +53,37 @@ describe("NewTicketDrawer", () => {
     });
   });
 
+  it("should submit valid ticket form with custom chatRef", async () => {
+    const user = userEvent.setup();
+    const onSubmitTicket = vi.fn().mockResolvedValue({});
+    const onOpenChange = vi.fn();
+
+    render(
+      <NewTicketDrawer
+        open={true}
+        onOpenChange={onOpenChange}
+        onSubmitTicket={onSubmitTicket}
+      />
+    );
+
+    const subjectInput = screen.getByLabelText(/assunto/i);
+    await user.type(subjectInput, "Problema no aplicativo");
+
+    const chatRefInput = screen.getByLabelText(/referência do chat/i);
+    await user.type(chatRefInput, "chat-custom-12345");
+
+    const submitButton = screen.getByRole("button", { name: /adicionar à fila/i });
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(onSubmitTicket).toHaveBeenCalledWith({
+        subject: "Problema no aplicativo",
+        chatRef: "chat-custom-12345",
+      });
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+  });
+
   it("should handle error when submission fails", async () => {
     const user = userEvent.setup();
     const onSubmitTicket = vi.fn().mockRejectedValue(new Error("Falha ao salvar"));

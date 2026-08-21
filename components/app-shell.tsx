@@ -13,6 +13,7 @@ import {
   PlusCircle,
   Menu,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,6 +61,8 @@ export function AppShell({ children }: AppShellProps) {
   const currentPath = pathname || "/";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDashboardExpanded, setIsDashboardExpanded] = useState(true);
+  const [isAnalyticsExpanded, setIsAnalyticsExpanded] = useState(true);
 
   const { teamSummaries, createAtendimento } = useQueues();
 
@@ -167,106 +170,132 @@ export function AppShell({ children }: AppShellProps) {
           <span>Novo Chamado</span>
         </Button>
 
-        {/* 1. SEÇÃO DASHBOARD */}
+        {/* 1. SEÇÃO DASHBOARD (COLAPSÁVEL) */}
         <div>
-          <div className="px-3 mb-2 text-[11px] font-semibold tracking-wider text-blue-100/70 uppercase">
-            Dashboard
-          </div>
-          <nav className="space-y-1">
-            <Link
-              href="/dashboard"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                isDashboardActive
-                  ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
-                  : "text-blue-100/80 hover:text-white hover:bg-white/10"
+          <button
+            type="button"
+            onClick={() => setIsDashboardExpanded((prev) => !prev)}
+            className="flex items-center justify-between w-full px-3 mb-2 text-[11px] font-semibold tracking-wider text-blue-100/70 hover:text-white uppercase transition-colors select-none group cursor-pointer"
+            aria-expanded={isDashboardExpanded}
+            aria-label="Expandir ou recolher setor Dashboard"
+          >
+            <span>Dashboard</span>
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform duration-200 text-blue-100/60 group-hover:text-white ${
+                isDashboardExpanded ? "rotate-0" : "-rotate-90"
               }`}
-            >
-              <LayoutDashboard className="h-4 w-4 shrink-0" />
-              <span className="flex-1">Visão Geral</span>
-            </Link>
+            />
+          </button>
+          {isDashboardExpanded && (
+            <nav className="space-y-1">
+              <Link
+                href="/dashboard"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  isDashboardActive
+                    ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                    : "text-blue-100/80 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                <LayoutDashboard className="h-4 w-4 shrink-0" />
+                <span className="flex-1">Visão Geral</span>
+              </Link>
 
-            {NAV_TEAMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentPath === item.href;
-              const stats = getTeamStats(item.team);
+              {NAV_TEAMS.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentPath === item.href;
+                const stats = getTeamStats(item.team);
 
-              return (
-                <Link
-                  key={`dash-${item.team}`}
-                  href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                    isActive
-                      ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
-                      : "text-blue-100/80 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Icon className="h-4 w-4 shrink-0 text-white" />
-                    <span className="truncate">{item.label}</span>
-                  </div>
-                  {stats && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-md ${
-                        isActive
-                          ? "bg-white/20 text-white font-semibold"
-                          : stats.waitingCount > 0
-                          ? "bg-amber-400 text-slate-900 font-bold"
-                          : "bg-white/10 text-blue-100"
-                      }`}>
-                        {stats.currentLoad}/{stats.totalCapacity}
-                      </span>
+                return (
+                  <Link
+                    key={`dash-${item.team}`}
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                      isActive
+                        ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                        : "text-blue-100/80 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Icon className="h-4 w-4 shrink-0 text-white" />
+                      <span className="truncate">{item.label}</span>
                     </div>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+                    {stats && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-md ${
+                          isActive
+                            ? "bg-white/20 text-white font-semibold"
+                            : stats.waitingCount > 0
+                            ? "bg-amber-400 text-slate-900 font-bold"
+                            : "bg-white/10 text-blue-100"
+                        }`}>
+                          {stats.currentLoad}/{stats.totalCapacity}
+                        </span>
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
         </div>
 
-        {/* 2. SEÇÃO ANALYTICS */}
+        {/* 2. SEÇÃO ANALYTICS (COLAPSÁVEL) */}
         <div>
-          <div className="px-3 mb-2 text-[11px] font-semibold tracking-wider text-blue-100/70 uppercase">
-            Analytics
-          </div>
-          <nav className="space-y-1">
-            <Link
-              href="/analytics"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                currentPath === "/analytics"
-                  ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
-                  : "text-blue-100/80 hover:text-white hover:bg-white/10"
+          <button
+            type="button"
+            onClick={() => setIsAnalyticsExpanded((prev) => !prev)}
+            className="flex items-center justify-between w-full px-3 mb-2 text-[11px] font-semibold tracking-wider text-blue-100/70 hover:text-white uppercase transition-colors select-none group cursor-pointer"
+            aria-expanded={isAnalyticsExpanded}
+            aria-label="Expandir ou recolher setor Analytics"
+          >
+            <span>Analytics</span>
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform duration-200 text-blue-100/60 group-hover:text-white ${
+                isAnalyticsExpanded ? "rotate-0" : "-rotate-90"
               }`}
-            >
-              <BarChart3 className="h-4 w-4 shrink-0" />
-              <span className="flex-1">Visão Geral</span>
-            </Link>
+            />
+          </button>
+          {isAnalyticsExpanded && (
+            <nav className="space-y-1">
+              <Link
+                href="/analytics"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  currentPath === "/analytics"
+                    ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                    : "text-blue-100/80 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                <BarChart3 className="h-4 w-4 shrink-0" />
+                <span className="flex-1">Visão Geral</span>
+              </Link>
 
-            {NAV_TEAMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentPath === item.analyticsHref;
+              {NAV_TEAMS.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentPath === item.analyticsHref;
 
-              return (
-                <Link
-                  key={`analytics-${item.team}`}
-                  href={item.analyticsHref}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                    isActive
-                      ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
-                      : "text-blue-100/80 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Icon className="h-4 w-4 shrink-0 text-white" />
-                    <span className="truncate">{item.label}</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </nav>
+                return (
+                  <Link
+                    key={`analytics-${item.team}`}
+                    href={item.analyticsHref}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                      isActive
+                        ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
+                        : "text-blue-100/80 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Icon className="h-4 w-4 shrink-0 text-white" />
+                      <span className="truncate">{item.label}</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
         </div>
       </div>
     </div>

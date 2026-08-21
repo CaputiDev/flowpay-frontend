@@ -51,8 +51,14 @@ export function TeamMetricCard({ team, metric, isLoading }: TeamMetricCardProps)
   const rejected = metric?.rejectedTickets || 0;
   const successRate = total > 0 ? Math.round((resolved / total) * 100) : 100;
 
-  const avgWaiting = metric?.avgWaitingTimeSeconds || 0;
-  const avgService = metric?.avgServiceTimeSeconds || 0;
+  const avgWaiting =
+    metric?.avgWaitingTimeSeconds ??
+    ((metric as unknown as Record<string, unknown>)?.waitingTimeSeconds as number) ??
+    0;
+  const avgService =
+    metric?.avgServiceTimeSeconds ??
+    ((metric as unknown as Record<string, unknown>)?.serviceTimeSeconds as number) ??
+    0;
 
   return (
     <Link

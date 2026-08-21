@@ -74,7 +74,8 @@ describe("TeamAnalyticsPage", () => {
     expect(screen.getAllByText("90").length).toBeGreaterThan(0);
     expect(screen.getByText("Taxa de Resolução")).toBeInTheDocument();
     expect(screen.getByText("Recusados (Fila Cheia)")).toBeInTheDocument();
-    expect(screen.getByText("Tempo Médio em Fila")).toBeInTheDocument();
+    expect(screen.getByText("Tempo Médio em Fila de Espera")).toBeInTheDocument();
+    expect(screen.getByText("Tempo Médio de Atendimento")).toBeInTheDocument();
     expect(screen.getByText("Histórico Mensal de Cartões")).toBeInTheDocument();
   });
 

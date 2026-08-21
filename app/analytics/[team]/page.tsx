@@ -61,6 +61,7 @@ export default function TeamAnalyticsPage() {
 
   const { summary, monthlyHistory, isLoading, isError, mutate } = useTeamAnalytics(currentTeam);
   const [selectedMonth, setSelectedMonth] = useState<string>("ALL");
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const label = TEAM_LABELS[currentTeam];
   const Icon = TEAM_ICONS[currentTeam] || HelpCircle;
@@ -89,7 +90,7 @@ export default function TeamAnalyticsPage() {
       ? Math.round((activeMetric.resolvedTickets / activeMetric.totalTickets) * 100)
       : 100;
 
-  const maxHistoryVolume = Math.max(...monthlyHistory.map((h) => h.totalTickets), 10);
+  const maxHistoryVolume = Math.max(...monthlyHistory.map((h) => h.totalTickets), 1);
   const chartHeight = 180;
 
   return (
@@ -171,7 +172,7 @@ export default function TeamAnalyticsPage() {
 
         {/* 1. CARDS DE KPIS DO TIME */}
         <section aria-label="KPIs da Equipe">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6">
             {/* Card 1: Total de Chamados */}
             <KpiCard
               title="Chamados Atribuídos"
@@ -203,16 +204,6 @@ export default function TeamAnalyticsPage() {
               }
               icon={XCircle}
               variant={activeMetric.rejectedTickets > 0 ? "rose" : "default"}
-              isLoading={isLoading}
-            />
-
-            {/* Card 4: Tempo Médio de Espera */}
-            <KpiCard
-              title="Tempo Médio em Fila"
-              value={formatDuration(activeMetric.avgWaitingTimeSeconds)}
-              subtitle="Tempo até operador assumir"
-              icon={Clock}
-              variant="amber"
               isLoading={isLoading}
             />
           </div>
@@ -257,8 +248,8 @@ export default function TeamAnalyticsPage() {
                   Sem dados históricos suficientes para exibir o gráfico mensal.
                 </div>
               ) : (
-                <div className="flex items-end justify-around gap-2 sm:gap-6 h-[200px] pb-8 border-b border-border/40">
-                  {monthlyHistory.map((item) => {
+                <div className="flex items-end justify-around gap-2 sm:gap-6 h-[220px] pb-8 border-b border-border/40 pt-4">
+                  {monthlyHistory.map((item, index) => {
                     const totalHeight = Math.max(
                       (item.totalTickets / maxHistoryVolume) * chartHeight,
                       6
@@ -272,32 +263,71 @@ export default function TeamAnalyticsPage() {
                         ? Math.max((item.rejectedTickets / maxHistoryVolume) * chartHeight, 4)
                         : 0;
 
+                    const isHovered = hoveredIdx === index;
+
                     return (
                       <div
                         key={item.month}
-                        className="flex-1 flex flex-col items-center justify-end h-full relative group cursor-pointer"
+                        className="flex-1 flex flex-col items-center justify-end h-full relative group"
                       >
-                        <div className="flex items-end gap-1 sm:gap-1.5 w-full max-w-[60px] justify-center">
+                        {/* Tooltip flutuante */}
+                        {isHovered && (
+                          <div className="absolute -top-16 z-20 bg-popover text-popover-foreground border border-border shadow-lg rounded-xl px-3 py-2 text-xs min-w-[140px] pointer-events-none transition-all">
+                            <div className="font-bold text-[11px] mb-1">{formatMonthLabel(item.month)}</div>
+                            <div className="flex justify-between gap-2 text-[10px]">
+                              <span>Total:</span>
+                              <span className="font-mono font-bold">{item.totalTickets}</span>
+                            </div>
+                            <div className="flex justify-between gap-2 text-[10px] text-emerald-600 dark:text-emerald-400">
+                              <span>Resolvidos:</span>
+                              <span className="font-mono font-bold">{item.resolvedTickets}</span>
+                            </div>
+                            {item.rejectedTickets > 0 && (
+                              <div className="flex justify-between gap-2 text-[10px] text-rose-600 dark:text-rose-400">
+                                <span>Recusados:</span>
+                                <span className="font-mono font-bold">{item.rejectedTickets}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div
+                          className="flex items-end gap-1 sm:gap-1.5 w-full max-w-[60px] justify-center cursor-pointer p-0.5 rounded-t-md hover:bg-muted/20 transition-colors"
+                          onMouseEnter={() => setHoveredIdx(index)}
+                          onMouseLeave={() => setHoveredIdx(null)}
+                        >
                           <div
-                            className="w-3 sm:w-4 rounded-t-md bg-[#015193] transition-all duration-300 hover:opacity-100 opacity-85"
+                            className={`w-3 sm:w-4 rounded-t-md bg-[#015193] transition-all duration-300 ${
+                              isHovered ? "opacity-100 scale-y-105" : "opacity-85 hover:opacity-100"
+                            }`}
                             style={{ height: `${totalHeight}px` }}
                             title={`Total: ${item.totalTickets}`}
                           />
                           <div
-                            className="w-3 sm:w-4 rounded-t-md bg-emerald-500 transition-all duration-300 hover:opacity-100 opacity-85"
+                            className={`w-3 sm:w-4 rounded-t-md bg-emerald-500 transition-all duration-300 ${
+                              isHovered ? "opacity-100 scale-y-105" : "opacity-85 hover:opacity-100"
+                            }`}
                             style={{ height: `${resolvedHeight}px` }}
                             title={`Resolvidos: ${item.resolvedTickets}`}
                           />
                           {rejectedHeight > 0 && (
                             <div
-                              className="w-2.5 sm:w-3.5 rounded-t-md bg-rose-500 transition-all duration-300 hover:opacity-100 opacity-85"
+                              className={`w-2.5 sm:w-3.5 rounded-t-md bg-rose-500 transition-all duration-300 ${
+                                isHovered ? "opacity-100 scale-y-105" : "opacity-85 hover:opacity-100"
+                              }`}
                               style={{ height: `${rejectedHeight}px` }}
                               title={`Recusados: ${item.rejectedTickets}`}
                             />
                           )}
                         </div>
 
-                        <span className="absolute -bottom-6 text-[10px] sm:text-xs text-muted-foreground font-mono">
+                        <span
+                          className={`absolute -bottom-6 text-[10px] sm:text-xs font-mono text-center truncate max-w-full cursor-pointer transition-colors ${
+                            isHovered ? "text-foreground font-semibold" : "text-muted-foreground"
+                          }`}
+                          onMouseEnter={() => setHoveredIdx(index)}
+                          onMouseLeave={() => setHoveredIdx(null)}
+                        >
                           {item.month.split("-")[1]}/{item.month.split("-")[0].slice(2)}
                         </span>
                       </div>
