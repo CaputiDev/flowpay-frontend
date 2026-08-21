@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { useAnalytics, formatDuration, formatMonthLabel } from "@/app/hooks/useAnalytics";
+import { useTeamAnalytics, formatDuration, formatMonthLabel } from "@/app/hooks/useAnalytics";
 import { KpiCard } from "@/components/analytics/kpi-card";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Team, TEAM_LABELS, TEAM_VARIANTS, TeamMetricDto } from "@/app/types/atendimento";
+import { Team, TEAM_LABELS, TEAM_VARIANTS } from "@/app/types/atendimento";
 import {
   CreditCard,
   Landmark,
@@ -59,82 +59,37 @@ export default function TeamAnalyticsPage() {
     ? rawTeam.toUpperCase()
     : "CREDIT_CARDS") as Team;
 
-  const { monthlyMetrics, isLoading, isError, mutate } = useAnalytics();
+  const { summary, monthlyHistory, isLoading, isError, mutate } = useTeamAnalytics(currentTeam);
   const [selectedMonth, setSelectedMonth] = useState<string>("ALL");
 
   const label = TEAM_LABELS[currentTeam];
   const Icon = TEAM_ICONS[currentTeam] || HelpCircle;
   const theme = TEAM_THEMES[currentTeam] || TEAM_THEMES.OTHERS;
 
-  // Extrai o histórico mensal apenas deste time
-  const teamMonthlyHistory = monthlyMetrics.map((m) => {
-    const tm: TeamMetricDto | undefined = m.byTeam?.[currentTeam];
-    return {
-      month: m.month,
-      totalTickets: tm?.totalTickets || 0,
-      resolvedTickets: tm?.resolvedTickets || 0,
-      rejectedTickets: tm?.rejectedTickets || 0,
-      avgWaitingTimeSeconds: tm?.avgWaitingTimeSeconds || 0,
-      avgServiceTimeSeconds: tm?.avgServiceTimeSeconds || 0,
-    };
-  });
-
   // Métricas do período selecionado
   const isAll = selectedMonth === "ALL";
-  let activeMetric: {
-    totalTickets: number;
-    resolvedTickets: number;
-    rejectedTickets: number;
-    avgWaitingTimeSeconds: number;
-    avgServiceTimeSeconds: number;
+  const selectedMonthlyData = !isAll ? monthlyHistory.find((h) => h.month === selectedMonth) : null;
+
+  const activeMetric = selectedMonthlyData || summary || {
+    totalTickets: 0,
+    resolvedTickets: 0,
+    rejectedTickets: 0,
+    inProgressTickets: 0,
+    pendingTickets: 0,
+    avgWaitingTimeSeconds: 0,
+    avgServiceTimeSeconds: 0,
+    avgTotalTimeSeconds: 0,
+    successRatePercent: 100,
   };
 
-  if (!isAll) {
-    const found = teamMonthlyHistory.find((h) => h.month === selectedMonth);
-    activeMetric = found || {
-      totalTickets: 0,
-      resolvedTickets: 0,
-      rejectedTickets: 0,
-      avgWaitingTimeSeconds: 0,
-      avgServiceTimeSeconds: 0,
-    };
-  } else {
-    // Consolida todos os meses deste time
-    let total = 0;
-    let resolved = 0;
-    let rejected = 0;
-    let waitingSum = 0;
-    let serviceSum = 0;
-    let count = 0;
-
-    teamMonthlyHistory.forEach((h) => {
-      total += h.totalTickets;
-      resolved += h.resolvedTickets;
-      rejected += h.rejectedTickets;
-      if (h.avgWaitingTimeSeconds > 0) {
-        waitingSum += h.avgWaitingTimeSeconds;
-        count++;
-      }
-      if (h.avgServiceTimeSeconds > 0) {
-        serviceSum += h.avgServiceTimeSeconds;
-      }
-    });
-
-    activeMetric = {
-      totalTickets: total,
-      resolvedTickets: resolved,
-      rejectedTickets: rejected,
-      avgWaitingTimeSeconds: count > 0 ? waitingSum / count : 0,
-      avgServiceTimeSeconds: count > 0 ? serviceSum / count : 0,
-    };
-  }
-
   const successRate =
-    activeMetric.totalTickets > 0
+    activeMetric.successRatePercent != null
+      ? Math.round(activeMetric.successRatePercent)
+      : activeMetric.totalTickets > 0
       ? Math.round((activeMetric.resolvedTickets / activeMetric.totalTickets) * 100)
       : 100;
 
-  const maxHistoryVolume = Math.max(...teamMonthlyHistory.map((h) => h.totalTickets), 10);
+  const maxHistoryVolume = Math.max(...monthlyHistory.map((h) => h.totalTickets), 10);
   const chartHeight = 180;
 
   return (
@@ -183,7 +138,7 @@ export default function TeamAnalyticsPage() {
               aria-label="Filtrar período do time"
             >
               <option value="ALL">Todo o Histórico (Geral)</option>
-              {monthlyMetrics.map((m) => (
+              {monthlyHistory.map((m) => (
                 <option key={m.month} value={m.month}>
                   {formatMonthLabel(m.month)}
                 </option>
@@ -297,13 +252,13 @@ export default function TeamAnalyticsPage() {
             </CardHeader>
 
             <CardContent className="p-5 sm:p-6 pt-4">
-              {teamMonthlyHistory.length === 0 ? (
+              {monthlyHistory.length === 0 ? (
                 <div className="h-[200px] flex items-center justify-center text-xs text-muted-foreground">
                   Sem dados históricos suficientes para exibir o gráfico mensal.
                 </div>
               ) : (
                 <div className="flex items-end justify-around gap-2 sm:gap-6 h-[200px] pb-8 border-b border-border/40">
-                  {teamMonthlyHistory.map((item) => {
+                  {monthlyHistory.map((item) => {
                     const totalHeight = Math.max(
                       (item.totalTickets / maxHistoryVolume) * chartHeight,
                       6

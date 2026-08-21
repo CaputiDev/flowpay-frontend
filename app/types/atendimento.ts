@@ -116,6 +116,38 @@ export interface MonthlyAnalyticsResponse {
   monthlyMetrics: MonthlyMetricDto[];
 }
 
+export interface TeamAnalyticsSummaryDto {
+  totalTickets: number;
+  resolvedTickets: number;
+  rejectedTickets: number;
+  inProgressTickets: number;
+  pendingTickets: number;
+  avgWaitingTimeSeconds: number;
+  avgServiceTimeSeconds: number;
+  avgTotalTimeSeconds: number;
+  successRatePercent: number;
+}
+
+export interface TeamMonthlyHistoryDto {
+  month: string;
+  totalTickets: number;
+  resolvedTickets: number;
+  rejectedTickets: number;
+  inProgressTickets: number;
+  pendingTickets: number;
+  avgWaitingTimeSeconds: number;
+  avgServiceTimeSeconds: number;
+  avgTotalTimeSeconds: number;
+  successRatePercent: number;
+}
+
+export interface TeamAnalyticsResponse {
+  team: Team;
+  teamName: string;
+  summary: TeamAnalyticsSummaryDto;
+  monthlyHistory: TeamMonthlyHistoryDto[];
+}
+
 // Helpers para exibição amigável dos Times
 export const TEAM_LABELS: Record<Team, string> = {
   CREDIT_CARDS: "Cartões",

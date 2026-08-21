@@ -1,13 +1,22 @@
 "use client";
 
 import useSWR from "swr";
-import { MonthlyAnalyticsResponse } from "@/app/types/atendimento";
+import { MonthlyAnalyticsResponse, TeamAnalyticsResponse, Team } from "@/app/types/atendimento";
 
 const fetcher = async (url: string): Promise<MonthlyAnalyticsResponse> => {
   const res = await fetch(url);
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.error || "Falha ao carregar métricas analíticas.");
+  }
+  return res.json();
+};
+
+const teamFetcher = async (url: string): Promise<TeamAnalyticsResponse> => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Falha ao carregar métricas da equipe.");
   }
   return res.json();
 };
@@ -67,6 +76,27 @@ export function useAnalytics(refreshInterval = 10000) {
     analytics: data,
     overallSummary: data?.overallSummary,
     monthlyMetrics: data?.monthlyMetrics || [],
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useTeamAnalytics(team: Team, refreshInterval = 10000) {
+  const { data, error, isLoading, mutate } = useSWR<TeamAnalyticsResponse>(
+    team ? `/api/analytics/teams/${team}` : null,
+    teamFetcher,
+    {
+      refreshInterval,
+      revalidateOnFocus: true,
+      dedupingInterval: 3000,
+    }
+  );
+
+  return {
+    teamAnalytics: data,
+    summary: data?.summary,
+    monthlyHistory: data?.monthlyHistory || [],
     isLoading,
     isError: error,
     mutate,
