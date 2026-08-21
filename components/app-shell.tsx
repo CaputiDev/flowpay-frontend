@@ -33,28 +33,28 @@ const NAV_TEAMS: {
   icon: typeof CreditCard;
   label: string;
 }[] = [
-  {
-    team: "CREDIT_CARDS",
-    href: "/CREDIT_CARDS",
-    analyticsHref: "/analytics/CREDIT_CARDS",
-    icon: CreditCard,
-    label: TEAM_LABELS.CREDIT_CARDS,
-  },
-  {
-    team: "LOANS",
-    href: "/LOANS",
-    analyticsHref: "/analytics/LOANS",
-    icon: Landmark,
-    label: TEAM_LABELS.LOANS,
-  },
-  {
-    team: "OTHERS",
-    href: "/OTHERS",
-    analyticsHref: "/analytics/OTHERS",
-    icon: HelpCircle,
-    label: TEAM_LABELS.OTHERS,
-  },
-];
+    {
+      team: "CREDIT_CARDS",
+      href: "/CREDIT_CARDS",
+      analyticsHref: "/analytics/CREDIT_CARDS",
+      icon: CreditCard,
+      label: TEAM_LABELS.CREDIT_CARDS,
+    },
+    {
+      team: "LOANS",
+      href: "/LOANS",
+      analyticsHref: "/analytics/LOANS",
+      icon: Landmark,
+      label: TEAM_LABELS.LOANS,
+    },
+    {
+      team: "OTHERS",
+      href: "/OTHERS",
+      analyticsHref: "/analytics/OTHERS",
+      icon: HelpCircle,
+      label: TEAM_LABELS.OTHERS,
+    },
+  ];
 
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
@@ -167,7 +167,7 @@ export function AppShell({ children }: AppShellProps) {
           aria-label="Criar novo atendimento"
         >
           <PlusCircle className="h-4 w-4" />
-          <span>Novo Chamado</span>
+          <span>Novo Atendimento</span>
         </Button>
 
         {/* 1. SEÇÃO DASHBOARD (COLAPSÁVEL) */}
@@ -181,9 +181,8 @@ export function AppShell({ children }: AppShellProps) {
           >
             <span>Dashboard</span>
             <ChevronDown
-              className={`h-3.5 w-3.5 transition-transform duration-200 text-blue-100/60 group-hover:text-white ${
-                isDashboardExpanded ? "rotate-0" : "-rotate-90"
-              }`}
+              className={`h-3.5 w-3.5 transition-transform duration-200 text-blue-100/60 group-hover:text-white ${isDashboardExpanded ? "rotate-0" : "-rotate-90"
+                }`}
             />
           </button>
           {isDashboardExpanded && (
@@ -191,11 +190,10 @@ export function AppShell({ children }: AppShellProps) {
               <Link
                 href="/dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                  isDashboardActive
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${isDashboardActive
                     ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
                     : "text-blue-100/80 hover:text-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" />
                 <span className="flex-1">Visão Geral</span>
@@ -211,11 +209,10 @@ export function AppShell({ children }: AppShellProps) {
                     key={`dash-${item.team}`}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                      isActive
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${isActive
                         ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
                         : "text-blue-100/80 hover:text-white hover:bg-white/10"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <Icon className="h-4 w-4 shrink-0 text-white" />
@@ -223,13 +220,12 @@ export function AppShell({ children }: AppShellProps) {
                     </div>
                     {stats && (
                       <div className="flex items-center gap-1 shrink-0">
-                        <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-md ${
-                          isActive
+                        <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-md ${isActive
                             ? "bg-white/20 text-white font-semibold"
                             : stats.waitingCount > 0
-                            ? "bg-amber-400 text-slate-900 font-bold"
-                            : "bg-white/10 text-blue-100"
-                        }`}>
+                              ? "bg-amber-400 text-slate-900 font-bold"
+                              : "bg-white/10 text-blue-100"
+                          }`}>
                           {stats.currentLoad}/{stats.totalCapacity}
                         </span>
                       </div>
@@ -252,9 +248,8 @@ export function AppShell({ children }: AppShellProps) {
           >
             <span>Analytics</span>
             <ChevronDown
-              className={`h-3.5 w-3.5 transition-transform duration-200 text-blue-100/60 group-hover:text-white ${
-                isAnalyticsExpanded ? "rotate-0" : "-rotate-90"
-              }`}
+              className={`h-3.5 w-3.5 transition-transform duration-200 text-blue-100/60 group-hover:text-white ${isAnalyticsExpanded ? "rotate-0" : "-rotate-90"
+                }`}
             />
           </button>
           {isAnalyticsExpanded && (
@@ -262,11 +257,10 @@ export function AppShell({ children }: AppShellProps) {
               <Link
                 href="/analytics"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                  currentPath === "/analytics"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${currentPath === "/analytics"
                     ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
                     : "text-blue-100/80 hover:text-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <BarChart3 className="h-4 w-4 shrink-0" />
                 <span className="flex-1">Visão Geral</span>
@@ -281,11 +275,10 @@ export function AppShell({ children }: AppShellProps) {
                     key={`analytics-${item.team}`}
                     href={item.analyticsHref}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                      isActive
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${isActive
                         ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
                         : "text-blue-100/80 hover:text-white hover:bg-white/10"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <Icon className="h-4 w-4 shrink-0 text-white" />
