@@ -19,6 +19,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "FlowPay - Gestão de Filas",
   description: "Gerenciamento e monitoramento de filas de atendimento em tempo real",
+  icons: {
+    icon: "/ubots-icon.png",
+    shortcut: "/ubots-icon.png",
+    apple: "/ubots-icon.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

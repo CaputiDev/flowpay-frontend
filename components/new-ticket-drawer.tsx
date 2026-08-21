@@ -7,13 +7,13 @@ import { z } from "zod";
 import { Loader2, PlusCircle } from "lucide-react";
 
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -91,53 +91,57 @@ export function NewTicketDrawer({
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-md flex flex-col justify-between"
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className="w-[95vw] max-w-md sm:max-w-lg p-5 sm:p-6 rounded-2xl bg-card border shadow-xl"
         aria-describedby="new-ticket-description"
       >
-        <div>
-          <SheetHeader className="text-left mb-6">
-            <SheetTitle className="text-lg font-bold flex items-center gap-2">
-              <PlusCircle className="h-5 w-5 text-primary" />
-              Novo Atendimento
-            </SheetTitle>
-            <SheetDescription id="new-ticket-description">
-              Preencha os dados do chamado para roteamento automático entre as equipes.
-            </SheetDescription>
-          </SheetHeader>
-
-          <form id="new-ticket-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="subject" className="font-medium">
-                Assunto <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="subject"
-                placeholder="Ex: Dúvida sobre fatura do Cartão"
-                {...register("subject")}
-                aria-invalid={!!errors.subject}
-                aria-describedby={errors.subject ? "subject-error" : undefined}
-                disabled={isSubmitting}
-                className="w-full"
-                autoFocus
-              />
-              {errors.subject && (
-                <p id="subject-error" role="alert" className="text-xs text-destructive">
-                  {errors.subject.message}
-                </p>
-              )}
+        <DialogHeader className="text-left mb-2">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-[#015193]/10 text-[#015193] flex items-center justify-center border border-[#015193]/20 shrink-0">
+              <PlusCircle className="h-5 w-5" />
             </div>
-          </form>
-        </div>
+            <div>
+              <DialogTitle className="text-lg font-bold text-foreground">
+                Novo Atendimento
+              </DialogTitle>
+              <DialogDescription id="new-ticket-description" className="text-xs text-muted-foreground mt-0.5">
+                Preencha o assunto do chamado para roteamento automático entre as equipes.
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
 
-        <SheetFooter className="mt-6 flex flex-row justify-end gap-2 border-t pt-4">
+        <form id="new-ticket-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label htmlFor="subject" className="font-medium text-xs sm:text-sm text-foreground">
+              Assunto da solicitação <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="subject"
+              placeholder="Ex: Dúvida sobre fatura do Cartão"
+              {...register("subject")}
+              aria-invalid={!!errors.subject}
+              aria-describedby={errors.subject ? "subject-error" : undefined}
+              disabled={isSubmitting}
+              className="w-full h-10 text-sm focus-visible:ring-[#015193]/20 focus-visible:border-[#015193]"
+              autoFocus
+            />
+            {errors.subject && (
+              <p id="subject-error" role="alert" className="text-xs text-destructive">
+                {errors.subject.message}
+              </p>
+            )}
+          </div>
+        </form>
+
+        <DialogFooter className="mt-4 flex flex-row justify-end gap-2 border-t border-border/40 pt-4">
           <Button
             type="button"
             variant="outline"
             onClick={() => handleOpenChange(false)}
             disabled={isSubmitting}
+            className="h-9 px-4 text-xs font-medium"
           >
             Cancelar
           </Button>
@@ -145,7 +149,7 @@ export function NewTicketDrawer({
             type="submit"
             form="new-ticket-form"
             disabled={isSubmitting}
-            className="gap-2"
+            className="gap-2 h-9 px-4 text-xs font-semibold bg-[#015193] hover:bg-[#015193]/90 text-white shadow-xs transition-all"
           >
             {isSubmitting ? (
               <>
@@ -159,8 +163,11 @@ export function NewTicketDrawer({
               </>
             )}
           </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
+
+// Alias export
+export const NewTicketModal = NewTicketDrawer;

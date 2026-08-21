@@ -75,7 +75,7 @@ export function useQueues() {
 
     const result: TicketResponse = await res.json();
 
-    // Revalida as filas para refletir a nova carga do atendente e a transição FIFO
+    // Revalida as filas para refletir a nova carga do atendente e a transição
     await mutate();
 
     return result;
