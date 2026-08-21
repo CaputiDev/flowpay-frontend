@@ -27,19 +27,19 @@ interface AppShellProps {
 const NAV_TEAMS: { team: Team; href: string; icon: typeof CreditCard; label: string }[] = [
   {
     team: "CREDIT_CARDS",
-    href: "/analytics/CREDIT_CARDS",
+    href: "/CREDIT_CARDS",
     icon: CreditCard,
     label: TEAM_LABELS.CREDIT_CARDS,
   },
   {
     team: "LOANS",
-    href: "/analytics/LOANS",
+    href: "/LOANS",
     icon: Landmark,
     label: TEAM_LABELS.LOANS,
   },
   {
     team: "OTHERS",
-    href: "/analytics/OTHERS",
+    href: "/OTHERS",
     icon: HelpCircle,
     label: TEAM_LABELS.OTHERS,
   },
@@ -57,22 +57,25 @@ export function AppShell({ children }: AppShellProps) {
     return teamSummaries?.find((t) => t.team === teamKey);
   };
 
+  const isDashboardActive = currentPath === "/dashboard" || currentPath === "/";
+
   const renderBreadcrumb = () => {
-    if (currentPath.startsWith("/analytics/")) {
-      const teamSlug = currentPath.replace("/analytics/", "").toUpperCase() as Team;
-      const teamLabel = TEAM_LABELS[teamSlug] || teamSlug;
+    const teamSlug = currentPath.replace("/", "").toUpperCase() as Team;
+
+    if (teamSlug in TEAM_LABELS) {
+      const teamLabel = TEAM_LABELS[teamSlug];
 
       return (
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs sm:text-sm font-medium">
           <Link
-            href="/"
+            href="/dashboard"
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
             Visão Geral
           </Link>
           <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
           <span className="text-foreground font-semibold">
-            Analytics: {teamLabel}
+            {teamLabel}
           </span>
         </nav>
       );
@@ -128,14 +131,14 @@ export function AppShell({ children }: AppShellProps) {
 
         <div>
           <div className="px-3 mb-2 text-[11px] font-semibold tracking-wider text-blue-100/70 uppercase">
-            Menu Principal
+            Dashboard
           </div>
           <nav className="space-y-1">
             <Link
-              href="/"
+              href="/dashboard"
               onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                currentPath === "/"
+                isDashboardActive
                   ? "bg-[#02223d] text-white shadow-xs font-semibold ring-1 ring-white/15"
                   : "text-blue-100/80 hover:text-white hover:bg-white/10"
               }`}
@@ -143,14 +146,7 @@ export function AppShell({ children }: AppShellProps) {
               <LayoutDashboard className="h-4 w-4 shrink-0" />
               <span className="flex-1">Visão Geral</span>
             </Link>
-          </nav>
-        </div>
 
-        <div>
-          <div className="px-3 mb-2 text-[11px] font-semibold tracking-wider text-blue-100/70 uppercase flex items-center justify-between">
-            <span>Analytics por Equipe</span>
-          </div>
-          <nav className="space-y-1">
             {NAV_TEAMS.map((item) => {
               const Icon = item.icon;
               const isActive = currentPath === item.href;

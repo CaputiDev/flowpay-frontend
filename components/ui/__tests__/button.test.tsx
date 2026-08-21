@@ -78,12 +78,12 @@ describe("Button component", () => {
   it("should render as child component when asChild is true", () => {
     render(
       <Button asChild>
-        <a href="/dashboard">Link Button</a>
+        <a href="#test">Link Button</a>
       </Button>
     );
     const link = screen.getByRole("link", { name: /link button/i });
     expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute("href", "/dashboard");
+    expect(link).toHaveAttribute("href", "#test");
     expect(link).toHaveAttribute("data-slot", "button");
   });
 

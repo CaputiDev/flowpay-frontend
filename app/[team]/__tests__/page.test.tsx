@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import TeamAnalyticsPage from "../page";
+import TeamPage from "../page";
 import * as useQueuesModule from "@/app/hooks/useQueues";
 import { ActiveTicketDto, WaitingTicketDto, QueueStatusResponse } from "@/app/types/atendimento";
 
 vi.mock("next/navigation", () => ({
   useParams: () => ({ team: "CREDIT_CARDS" }),
-  usePathname: () => "/analytics/CREDIT_CARDS",
+  usePathname: () => "/CREDIT_CARDS",
 }));
 
-describe("TeamAnalyticsPage", () => {
+describe("TeamPage", () => {
   const mockActive: ActiveTicketDto[] = [
     {
       id: "ativa-cards-1",
@@ -90,7 +90,7 @@ describe("TeamAnalyticsPage", () => {
     vi.restoreAllMocks();
   });
 
-  it("should render team analytics header, metrics and operators", () => {
+  it("should render team header, metrics and operators", () => {
     vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
       filas: mockFilas,
       activeQueue: mockActive,
@@ -103,7 +103,7 @@ describe("TeamAnalyticsPage", () => {
       finishAtendimento: vi.fn(),
     });
 
-    render(<TeamAnalyticsPage />);
+    render(<TeamPage />);
 
     expect(screen.getByRole("heading", { name: /Equipe de Cartões/i })).toBeInTheDocument();
     expect(screen.getByText("Atendimentos Ativos")).toBeInTheDocument();
@@ -116,7 +116,7 @@ describe("TeamAnalyticsPage", () => {
     expect(screen.queryByText("Simulação de consignado")).not.toBeInTheDocument();
   });
 
-  it("should handle finishing ticket inside team analytics", async () => {
+  it("should handle finishing ticket inside team view", async () => {
     const user = userEvent.setup();
     const finishMock = vi.fn().mockResolvedValue({
       id: "ativa-cards-1",
@@ -139,7 +139,7 @@ describe("TeamAnalyticsPage", () => {
       finishAtendimento: finishMock,
     });
 
-    render(<TeamAnalyticsPage />);
+    render(<TeamPage />);
 
     const finishBtn = screen.getByRole("button", { name: /finalizar atendimento #101/i });
     await user.click(finishBtn);

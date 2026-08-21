@@ -93,22 +93,28 @@ export function NewTicketDrawer({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="w-[95vw] max-w-md sm:max-w-lg p-5 sm:p-6"
+        className="w-[95vw] max-w-md sm:max-w-lg p-5 sm:p-6 rounded-2xl bg-card border shadow-xl"
         aria-describedby="new-ticket-description"
       >
         <DialogHeader className="text-left mb-2">
-          <DialogTitle className="text-lg font-bold flex items-center gap-2">
-            <PlusCircle className="h-5 w-5 text-primary" />
-            Novo Atendimento
-          </DialogTitle>
-          <DialogDescription id="new-ticket-description">
-            Preencha o assunto do chamado para roteamento automático entre as equipes.
-          </DialogDescription>
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-[#015193]/10 text-[#015193] flex items-center justify-center border border-[#015193]/20 shrink-0">
+              <PlusCircle className="h-5 w-5" />
+            </div>
+            <div>
+              <DialogTitle className="text-lg font-bold text-foreground">
+                Novo Atendimento
+              </DialogTitle>
+              <DialogDescription id="new-ticket-description" className="text-xs text-muted-foreground mt-0.5">
+                Preencha o assunto do chamado para roteamento automático entre as equipes.
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
         <form id="new-ticket-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="subject" className="font-medium text-xs sm:text-sm">
+            <Label htmlFor="subject" className="font-medium text-xs sm:text-sm text-foreground">
               Assunto da solicitação <span className="text-destructive">*</span>
             </Label>
             <Input
@@ -118,7 +124,7 @@ export function NewTicketDrawer({
               aria-invalid={!!errors.subject}
               aria-describedby={errors.subject ? "subject-error" : undefined}
               disabled={isSubmitting}
-              className="w-full h-10"
+              className="w-full h-10 text-sm focus-visible:ring-[#015193]/20 focus-visible:border-[#015193]"
               autoFocus
             />
             {errors.subject && (
@@ -129,13 +135,13 @@ export function NewTicketDrawer({
           </div>
         </form>
 
-        <DialogFooter className="mt-4 flex flex-row justify-end gap-2 border-t pt-4">
+        <DialogFooter className="mt-4 flex flex-row justify-end gap-2 border-t border-border/40 pt-4">
           <Button
             type="button"
             variant="outline"
             onClick={() => handleOpenChange(false)}
             disabled={isSubmitting}
-            className="h-9 text-xs"
+            className="h-9 px-4 text-xs font-medium"
           >
             Cancelar
           </Button>
@@ -143,7 +149,7 @@ export function NewTicketDrawer({
             type="submit"
             form="new-ticket-form"
             disabled={isSubmitting}
-            className="gap-2 h-9 text-xs font-medium"
+            className="gap-2 h-9 px-4 text-xs font-semibold bg-[#015193] hover:bg-[#015193]/90 text-white shadow-xs transition-all"
           >
             {isSubmitting ? (
               <>

@@ -68,7 +68,7 @@ const TEAM_THEMES: Record<
   },
 };
 
-export default function TeamAnalyticsPage() {
+export default function TeamPage() {
   const params = useParams();
   const rawTeam = (params?.team as string)?.toUpperCase() as Team;
   const team: Team = rawTeam in TEAM_LABELS ? rawTeam : "CREDIT_CARDS";
@@ -131,7 +131,7 @@ export default function TeamAnalyticsPage() {
         {/* Botão Voltar */}
         <div className="flex items-center justify-end">
           <Button variant="ghost" size="sm" asChild className="gap-1.5 h-8 text-xs">
-            <Link href="/">
+            <Link href="/dashboard">
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>Voltar ao Dashboard</span>
             </Link>
