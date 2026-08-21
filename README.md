@@ -112,29 +112,6 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 
 ---
 
-## 💻 Como Usar (Exemplos)
-
-### Fluxos da Aplicação
-
-1. **Acompanhar Filas em Tempo Real**:
-   - Acesse a rota `/dashboard` para visualizar as squads de **Cartões**, **Empréstimos** e **Outros Assuntos**.
-   - Os cards exibem capacidade de atendentes, tickets em atendimento e fila de espera com atualização automática a cada 5 segundos.
-
-2. **Abrir um Novo Chamado**:
-   - Clique no botão **"Novo Chamado"** na barra lateral de navegação.
-   - Preencha o assunto (mínimo de 3 caracteres) e opcionalmente o identificador de referência do chat (`chatRef`).
-   - Ao confirmar, o chamado é registrado e distribuído automaticamente pelo backend.
-
-3. **Finalizar Atendimentos**:
-   - Navegue para a visualização de um time específico (ex.: `/cartoes`).
-   - Localize o atendimento ativo e clique em **"Finalizar Atendimento"** para liberar capacidade do operador.
-
-4. **Consultar Métricas e SLAs**:
-   - Acesse `/analytics` para ver indicadores globais de resolução, rejeição e tempos médios de resposta.
-   - Filtre métricas históricas por mês ou navegue para o detalhamento de cada squad.
-
----
-
 ## 🧪 Testes
 
 O projeto conta com uma suíte abrangente de testes unitários e de integração utilizando **Vitest** e **React Testing Library**, cobrindo páginas, componentes, custom hooks e rotas de API.
