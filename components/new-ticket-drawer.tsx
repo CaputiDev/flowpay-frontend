@@ -25,6 +25,7 @@ const ticketFormSchema = z.object({
     .string()
     .trim()
     .min(3, { message: "O assunto é obrigatório e deve ter no mínimo 3 caracteres." }),
+  chatRef: z.string().trim().optional(),
 });
 
 type TicketFormData = z.infer<typeof ticketFormSchema>;
@@ -52,14 +53,18 @@ export function NewTicketDrawer({
     resolver: zodResolver(ticketFormSchema),
     defaultValues: {
       subject: "",
+      chatRef: "",
     },
   });
 
   const onSubmit = async (data: TicketFormData) => {
     try {
       setIsSubmitting(true);
+      const customChatRef = data.chatRef?.trim();
+
       await onSubmitTicket({
         subject: data.subject,
+        ...(customChatRef ? { chatRef: customChatRef } : {}),
       });
 
       toast({
@@ -106,7 +111,7 @@ export function NewTicketDrawer({
                 Novo Atendimento
               </DialogTitle>
               <DialogDescription id="new-ticket-description" className="text-xs text-muted-foreground mt-0.5">
-                Preencha o assunto do chamado para roteamento automático entre as equipes.
+                Preencha o assunto e a referência do chamado para roteamento automático entre as equipes.
               </DialogDescription>
             </div>
           </div>
@@ -132,6 +137,24 @@ export function NewTicketDrawer({
                 {errors.subject.message}
               </p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="chatRef" className="font-medium text-xs sm:text-sm text-foreground">
+                Referência do Chat
+              </Label>
+              <span className="text-[11px] text-muted-foreground font-normal">
+                (Opcional - gerado automaticamente)
+              </span>
+            </div>
+            <Input
+              id="chatRef"
+              placeholder="Ex: chat-usr-84930"
+              {...register("chatRef")}
+              disabled={isSubmitting}
+              className="w-full h-10 text-sm focus-visible:ring-[#015193]/20 focus-visible:border-[#015193]"
+            />
           </div>
         </form>
 

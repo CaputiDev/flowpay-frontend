@@ -78,6 +78,76 @@ export interface ErrorResponse {
   path?: string;
 }
 
+export interface OverallSummaryDto {
+  totalTickets: number;
+  totalResolved: number;
+  totalRejected: number;
+  totalInProgress: number;
+  totalPending: number;
+  avgWaitingTimeSeconds: number;
+  avgServiceTimeSeconds: number;
+  avgTotalTimeSeconds: number;
+}
+
+export interface TeamMetricDto {
+  team: Team;
+  totalTickets: number;
+  resolvedTickets: number;
+  rejectedTickets: number;
+  avgWaitingTimeSeconds: number;
+  avgServiceTimeSeconds: number;
+}
+
+export interface MonthlyMetricDto {
+  month: string;
+  totalTickets: number;
+  resolvedTickets: number;
+  rejectedTickets: number;
+  inProgressTickets: number;
+  pendingTickets: number;
+  avgWaitingTimeSeconds: number;
+  avgServiceTimeSeconds: number;
+  avgTotalTimeSeconds: number;
+  byTeam: Record<string, TeamMetricDto>;
+}
+
+export interface MonthlyAnalyticsResponse {
+  overallSummary: OverallSummaryDto;
+  monthlyMetrics: MonthlyMetricDto[];
+}
+
+export interface TeamAnalyticsSummaryDto {
+  totalTickets: number;
+  resolvedTickets: number;
+  rejectedTickets: number;
+  inProgressTickets: number;
+  pendingTickets: number;
+  avgWaitingTimeSeconds: number;
+  avgServiceTimeSeconds: number;
+  avgTotalTimeSeconds: number;
+  successRatePercent: number;
+}
+
+export interface TeamMonthlyHistoryDto {
+  month: string;
+  totalTickets: number;
+  resolvedTickets: number;
+  rejectedTickets: number;
+  inProgressTickets: number;
+  pendingTickets: number;
+  avgWaitingTimeSeconds: number;
+  avgServiceTimeSeconds: number;
+  avgTotalTimeSeconds: number;
+  successRatePercent: number;
+}
+
+export interface TeamAnalyticsResponse {
+  team: Team;
+  teamName: string;
+  summary: TeamAnalyticsSummaryDto;
+  monthlyHistory: TeamMonthlyHistoryDto[];
+}
+
 // Helpers para exibição amigável dos Times
 export const TEAM_LABELS: Record<Team, string> = {
   CREDIT_CARDS: "Cartões",
