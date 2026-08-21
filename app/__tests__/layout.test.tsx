@@ -16,6 +16,11 @@ describe("RootLayout Component", () => {
     expect(metadata).toBeDefined();
     expect(metadata.title).toBe("FlowPay - Gestão de Filas");
     expect(metadata.description).toBe("Gerenciamento e monitoramento de filas de atendimento em tempo real");
+    expect(metadata.icons).toEqual({
+      icon: "/ubots-icon.png",
+      shortcut: "/ubots-icon.png",
+      apple: "/ubots-icon.png",
+    });
   });
 
   it("should render children inside layout structure", () => {

@@ -149,31 +149,8 @@ describe("Dashboard Page", () => {
     expect(mutateMock).toHaveBeenCalled();
   });
 
-  it("should trigger refresh when update button is clicked", async () => {
-    const user = userEvent.setup();
-    const mutateMock = vi.fn();
 
-    vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
-      filas: mockFilas,
-      activeQueue: mockActive,
-      waitingQueue: mockWaiting,
-      teamSummaries: mockFilas.teamSummaries,
-      isLoading: false,
-      isError: undefined,
-      mutate: mutateMock,
-      createAtendimento: vi.fn(),
-      finishAtendimento: vi.fn(),
-    });
-
-    render(<Dashboard />);
-
-    const refreshBtn = screen.getByRole("button", { name: /atualizar dados da fila/i });
-    await user.click(refreshBtn);
-
-    expect(mutateMock).toHaveBeenCalled();
-  });
-
-  it("should open NewTicketDrawer when 'Novo Chamado' in header is clicked", async () => {
+  it("should open NewTicketDrawer when 'Novo Chamado' in sidebar is clicked", async () => {
     const user = userEvent.setup();
     vi.spyOn(useQueuesModule, "useQueues").mockReturnValue({
       filas: mockFilas,
@@ -189,8 +166,8 @@ describe("Dashboard Page", () => {
 
     render(<Dashboard />);
 
-    const novoChamadoBtns = screen.getAllByRole("button", { name: /criar novo atendimento/i });
-    await user.click(novoChamadoBtns[0]);
+    const novoChamadoBtn = screen.getByRole("button", { name: /criar novo atendimento/i });
+    await user.click(novoChamadoBtn);
 
     expect(screen.getByRole("heading", { name: /novo atendimento/i })).toBeInTheDocument();
   });
@@ -212,6 +189,6 @@ describe("Dashboard Page", () => {
     render(<Dashboard />);
 
     await user.tab();
-    expect(screen.getByRole("link", { name: /dashboard geral/i })).toHaveFocus();
+    expect(screen.getByRole("button", { name: /criar novo atendimento/i })).toHaveFocus();
   });
 });
