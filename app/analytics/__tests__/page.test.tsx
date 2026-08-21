@@ -136,6 +136,8 @@ describe("AnalyticsPage", () => {
 
     // Total should now reflect August (100)
     expect(screen.getAllByText("100").length).toBeGreaterThan(0);
+    // Historical monthly chart should be hidden when filtering by specific month
+    expect(screen.queryByText("Volume Histórico de Chamados")).not.toBeInTheDocument();
   });
 
   it("should display error banner and allow retry", async () => {

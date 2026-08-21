@@ -108,7 +108,7 @@ export function NewTicketDrawer({
             </div>
             <div>
               <DialogTitle className="text-lg font-bold text-foreground">
-                Novo Atendimento
+                Novo Chamado
               </DialogTitle>
               <DialogDescription id="new-ticket-description" className="text-xs text-muted-foreground mt-0.5">
                 Preencha o assunto e a referência do chamado para roteamento automático entre as equipes.

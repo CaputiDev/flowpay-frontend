@@ -168,7 +168,7 @@ describe("Dashboard Page", () => {
     const novoChamadoBtn = screen.getByRole("button", { name: /criar novo atendimento/i });
     await user.click(novoChamadoBtn);
 
-    expect(screen.getByRole("heading", { name: /novo atendimento/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /novo chamado/i })).toBeInTheDocument();
   });
 
   it("should be navigable via keyboard Tab key", async () => {

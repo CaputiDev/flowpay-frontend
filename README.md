@@ -1,36 +1,169 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FlowPay Frontend
 
-## Getting Started
+> Interface web moderna e em tempo real para monitoramento de filas operacionais, distribuição de carga de atendentes e análise de métricas de atendimento ao cliente da FlowPay.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 📑 Índice (Table of Contents)
+
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Arquitetura e Estrutura](#-arquitetura-e-estrutura)
+- [Como Executar (Instalação)](#-como-executar-instalação)
+  - [Pré-requisitos](#pré-requisitos)
+  - [Variáveis de Ambiente](#variáveis-de-ambiente)
+  - [Instalação e Execução Local](#instalação-e-execução-local)
+- [Como Usar (Exemplos)](#-como-usar-exemplos)
+  - [Fluxos da Aplicação](#fluxos-da-aplicação)
+  - [Exemplos de Integração com o BFF](#exemplos-de-integração-com-o-bff)
+- [Testes](#-testes)
+- [Scripts Disponíveis](#-scripts-disponíveis)
+
+---
+
+## 💡 Sobre o Projeto
+
+O **FlowPay Frontend** é uma aplicação web desenvolvida para centralizar a operação e a gestão do atendimento ao cliente.
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Core & Framework**: [Next.js](https://nextjs.org/) (App Router), [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
+- **Estilização & UI**: [Tailwind CSS](https://tailwindcss.com/), [Radix UI](https://www.radix-ui.com/), [Shadcn UI](https://ui.shadcn.com/)
+- **Ícones**: [Phosphor Icons](https://phosphoricons.com/), [Lucide Icons](https://lucide.dev/)
+- **Gerenciamento de Estado & Data Fetching**: [SWR](https://swr.vercel.app/)
+- **Formulários & Validação**: [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/)
+- **Testes Automatizados**: [Vitest](https://vitest.dev/), [Testing Library](https://testing-library.com/) (`@testing-library/react`, `@testing-library/jest-dom`), [jsdom](https://github.com/jsdom/jsdom)
+- **Linter & Qualidade**: [ESLint](https://eslint.org/)
+
+---
+
+## 🏗️ Arquitetura e Estrutura
+
+```plaintext
+flowpay-frontend/
+├── app/
+│   ├── [team]/                  # Visão detalhada de squads (cartoes, emprestimos, outros)
+│   ├── analytics/               # Módulos de analytics geral e por time
+│   │   └── [team]/              # Analytics segmentado por time
+│   ├── api/                     # Rotas de API (BFF - Backend for Frontend)
+│   │   ├── analytics/           # Endpoints de métricas mensais e por squad
+│   │   └── queues/              # Endpoints de status das filas, criação e finalização
+│   ├── dashboard/               # Dashboard operacional geral
+│   ├── hooks/                   # Custom hooks (useQueues, useAnalytics)
+│   ├── types/                   # Tipagens TypeScript e DTOs da aplicação
+│   ├── globals.css              # Variáveis de tema e design tokens Tailwind
+│   └── layout.tsx               # Layout raiz da aplicação
+├── components/
+│   ├── analytics/               # Componentes visuais de gráficos e KPI Cards
+│   ├── ui/                      # Componentes base reutilizáveis (Card, Button, Dialog, etc.)
+│   ├── app-shell.tsx            # Estrutura de navegação, sidebar e header
+│   └── new-ticket-drawer.tsx    # Drawer lateral de abertura de chamado
+├── lib/
+│   └── utils.ts                 # Utilitários globais (clsx, tailwind-merge)
+└── vitest.config.mts            # Configuração da suíte de testes Vitest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Como Executar (Instalação)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Pré-requisitos
 
-## Learn More
+Certifique-se de ter instalado em seu ambiente:
+- **Node.js**: `v18.17.0` ou superior (recomendado: `Node.js LTS`)
+- **npm**, **pnpm** ou **yarn**
+- **FlowPay Backend API** (executando localmente ou em ambiente de desenvolvimento)
 
-To learn more about Next.js, take a look at the following resources:
+### Variáveis de Ambiente
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Crie um arquivo `.env.local` na raiz do projeto com base no arquivo `.env.example`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cp .env.example .env.local
+```
 
-## Deploy on Vercel
+Configuração necessária:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```env
+# URL base do serviço de backend da FlowPay
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Instalação e Execução Local
+
+1. **Clone o repositório:**
+   ```bash
+   git clone https://github.com/CaputiDev/flowpay-frontend.git
+   cd flowpay-frontend
+   ```
+
+2. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
+
+3. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Acesse a aplicação no navegador:**
+   Abra [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 💻 Como Usar (Exemplos)
+
+### Fluxos da Aplicação
+
+1. **Acompanhar Filas em Tempo Real**:
+   - Acesse a rota `/dashboard` para visualizar as squads de **Cartões**, **Empréstimos** e **Outros Assuntos**.
+   - Os cards exibem capacidade de atendentes, tickets em atendimento e fila de espera com atualização automática a cada 5 segundos.
+
+2. **Abrir um Novo Chamado**:
+   - Clique no botão **"Novo Chamado"** na barra lateral de navegação.
+   - Preencha o assunto (mínimo de 3 caracteres) e opcionalmente o identificador de referência do chat (`chatRef`).
+   - Ao confirmar, o chamado é registrado e distribuído automaticamente pelo backend.
+
+3. **Finalizar Atendimentos**:
+   - Navegue para a visualização de um time específico (ex.: `/cartoes`).
+   - Localize o atendimento ativo e clique em **"Finalizar Atendimento"** para liberar capacidade do operador.
+
+4. **Consultar Métricas e SLAs**:
+   - Acesse `/analytics` para ver indicadores globais de resolução, rejeição e tempos médios de resposta.
+   - Filtre métricas históricas por mês ou navegue para o detalhamento de cada squad.
+
+---
+
+## 🧪 Testes
+
+O projeto conta com uma suíte abrangente de testes unitários e de integração utilizando **Vitest** e **React Testing Library**, cobrindo páginas, componentes, custom hooks e rotas de API.
+
+Para executar os testes:
+
+```bash
+# Executa os testes em modo watch interativo
+npm run test
+
+# Executa todos os testes uma única vez (indicado para CI/CD)
+npm run test:ci
+
+# Executa os testes e gera relatório de cobertura de código
+npm run test:coverage
+```
+
+---
+
+## 📜 Scripts Disponíveis
+
+No arquivo `package.json`, você encontrará os seguintes scripts:
+
+| Comando | Descrição |
+| :--- | :--- |
+| `npm run dev` | Inicia o servidor de desenvolvimento Next.js na porta `3000` |
+| `npm run build` | Gera o build otimizado de produção da aplicação |
+| `npm run start` | Inicia a aplicação a partir do build de produção |
+| `npm run test` | Executa os testes unitários e de integração via Vitest |
+| `npm run test:ci` | Executa a suíte de testes em modo contínuo / CI sem watch |
+| `npm run test:coverage` | Executa os testes e gera a análise de cobertura |
+| `npm run lint` | Executa o linter ESLint para validação de padrões de código |
