@@ -201,9 +201,9 @@ export function AppShell({ children }: AppShellProps) {
       <div className="flex-1 flex flex-col md:pl-64 w-full min-w-0">
         {/* Top Header */}
         <header className="border-b bg-card/80 backdrop-blur sticky top-0 z-20 w-full">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+          <div className="w-full px-3 sm:px-4 h-16 flex items-center justify-between gap-3">
             {/* Mobile Hamburger & Dynamic Breadcrumb Location */}
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button
@@ -223,7 +223,7 @@ export function AppShell({ children }: AppShellProps) {
                 </SheetContent>
               </Sheet>
 
-              <div className="min-w-0">
+              <div className="min-w-0 truncate">
                 {renderBreadcrumb()}
               </div>
             </div>

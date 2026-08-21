@@ -207,7 +207,7 @@ export default function TeamAnalyticsPage() {
               {isLoading ? <Skeleton className="h-8 w-14" /> : `${waitingCount}/${maxQueueCapacity}`}
             </div>
             <p className="text-[11px] text-muted-foreground mt-2">
-              Limite de tolerância da fila FIFO (máx {maxQueueCapacity})
+              Limite de tolerância da fila (máx {maxQueueCapacity})
             </p>
           </Card>
 
@@ -386,7 +386,7 @@ export default function TeamAnalyticsPage() {
               <div>
                 <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                   <Clock className="h-4 w-4 text-amber-500 shrink-0" />
-                  <span>Fila de Espera FIFO ({teamWaitingQueue.length})</span>
+                  <span>Fila de Espera ({teamWaitingQueue.length})</span>
                 </CardTitle>
                 <CardDescription className="text-[11px] text-muted-foreground mt-0.5">
                   Chamados pendentes aguardando liberação de atendente
