@@ -89,8 +89,8 @@ describe("Dashboard Page", () => {
 
     const { container } = render(<Dashboard />);
 
-    expect(screen.getByRole("heading", { name: /FlowPay MVP/i, level: 1 })).toBeInTheDocument();
-    expect(screen.getByText("Gerenciamento de Filas & Roteamento Automático")).toBeInTheDocument();
+    expect(screen.getAllByText("Dashboard").length).toBeGreaterThan(0);
+    expect(screen.getByText("Roteamento & Filas")).toBeInTheDocument();
 
     const skeletons = container.querySelectorAll("[data-slot='skeleton']");
     expect(skeletons.length).toBeGreaterThan(0);
@@ -118,9 +118,8 @@ describe("Dashboard Page", () => {
 
     // Teams
     expect(screen.getByText("Equipes de Atendimento")).toBeInTheDocument();
-    expect(screen.getByText("Cartões")).toBeInTheDocument();
-    expect(screen.getByText("Empréstimos")).toBeInTheDocument();
-    expect(screen.getByText("Ana Silva")).toBeInTheDocument();
+    expect(screen.getAllByText("Cartões").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Empréstimos").length).toBeGreaterThan(0);
   });
 
   it("should display error banner and allow retry via mutate", async () => {
@@ -190,8 +189,8 @@ describe("Dashboard Page", () => {
 
     render(<Dashboard />);
 
-    const novoChamadoBtn = screen.getByRole("button", { name: /criar novo atendimento/i });
-    await user.click(novoChamadoBtn);
+    const novoChamadoBtns = screen.getAllByRole("button", { name: /criar novo atendimento/i });
+    await user.click(novoChamadoBtns[0]);
 
     expect(screen.getByRole("heading", { name: /novo atendimento/i })).toBeInTheDocument();
   });
@@ -213,9 +212,6 @@ describe("Dashboard Page", () => {
     render(<Dashboard />);
 
     await user.tab();
-    expect(screen.getByRole("button", { name: /atualizar dados da fila/i })).toHaveFocus();
-
-    await user.tab();
-    expect(screen.getByRole("button", { name: /criar novo atendimento/i })).toHaveFocus();
+    expect(screen.getByRole("link", { name: /dashboard geral/i })).toHaveFocus();
   });
 });

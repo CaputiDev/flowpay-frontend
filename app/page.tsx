@@ -1,25 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import {
-  PlusCircle,
-  AlertTriangle,
-  RefreshCw,
-  User,
-  Layers,
   Activity,
   UserCheck,
   Clock,
   CreditCard,
   Landmark,
   HelpCircle,
+  ArrowUpRight,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueues } from "@/app/hooks/useQueues";
-import { NewTicketDrawer } from "@/components/new-ticket-drawer";
+import { AppShell } from "@/components/app-shell";
 import { TEAM_LABELS, TEAM_VARIANTS, Team } from "@/app/types/atendimento";
 
 const TEAM_ICONS: Record<Team, typeof CreditCard> = {
@@ -50,8 +47,6 @@ const TEAM_THEMES: Record<
 };
 
 export default function Dashboard() {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
   const {
     activeQueue,
     waitingQueue,
@@ -59,7 +54,6 @@ export default function Dashboard() {
     isLoading,
     isError,
     mutate,
-    createAtendimento,
   } = useQueues();
 
   // Métricas consolidadas
@@ -71,56 +65,8 @@ export default function Dashboard() {
   const occupancyRate = totalCapacity > 0 ? Math.round((currentLoad / totalCapacity) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col w-full overflow-x-hidden">
-      {/* Top Header */}
-      <header className="border-b bg-card/80 backdrop-blur sticky top-0 z-20 w-full">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shrink-0 shadow-xs">
-              <Layers className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-base sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2 truncate">
-                FlowPay MVP
-                <Badge variant="outline" className="hidden md:inline-flex text-[10px] font-mono">
-                  v1.0.0
-                </Badge>
-              </h1>
-              <p className="text-xs text-muted-foreground hidden sm:block truncate">
-                Gerenciamento de Filas & Roteamento Automático
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => mutate()}
-              disabled={isLoading}
-              title="Atualizar dados da fila"
-              aria-label="Atualizar dados da fila"
-              className="gap-1.5 h-9 px-3 text-xs"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
-              <span className="hidden sm:inline">Atualizar</span>
-            </Button>
-
-            <Button
-              onClick={() => setIsDrawerOpen(true)}
-              size="sm"
-              className="gap-1.5 h-9 px-3.5 text-xs shadow-sm font-medium"
-              aria-label="Criar novo atendimento"
-            >
-              <PlusCircle className="h-4 w-4" />
-              <span>Novo Chamado</span>
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Conteúdo Principal */}
-      <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <AppShell>
+      <div className="space-y-6">
         {/* Banner de Erro */}
         {isError && (
           <div
@@ -188,10 +134,6 @@ export default function Dashboard() {
                   em aguardo
                 </span>
               </div>
-              <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1.5">
-                <span className={`inline-block w-2 h-2 rounded-full ${totalWaiting > 0 ? "bg-amber-500" : "bg-muted-foreground/40"}`} />
-                <span>Ordem de chegada FIFO</span>
-              </div>
             </Card>
 
             {/* Card 3: Atendentes ativos */}
@@ -220,14 +162,14 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* 2. CARTÕES POR EQUIPE (MINIMALISTAS) */}
+        {/* 2. CARTÕES POR EQUIPE (CLICÁVEIS -> ANALYTICS) */}
         <section aria-label="Equipes de Atendimento" className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
               Equipes de Atendimento
             </h2>
             <span className="text-xs text-muted-foreground">
-              Capacidade & Fila por Setor
+              Clique no card para abrir o painel analítico da equipe
             </span>
           </div>
 
@@ -260,104 +202,85 @@ export default function Dashboard() {
                 const isFull = teamSummary.currentLoad >= teamSummary.totalCapacity;
 
                 return (
-                  <Card
+                  <Link
                     key={teamSummary.team}
-                    className="p-4 bg-card/90 border shadow-xs hover:border-border/80 transition-all flex flex-col justify-between space-y-3"
+                    href={`/analytics/${teamSummary.team}`}
+                    className="block group focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-xl transition-all"
                   >
-                    {/* Top: Ícone e Nome da Equipe */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${theme.iconBg} ${theme.iconColor}`}>
-                          <Icon className="h-4 w-4" />
-                        </div>
-                        <span className="font-semibold text-sm text-foreground truncate">
-                          {label}
-                        </span>
-                      </div>
-                      <Badge
-                        variant={TEAM_VARIANTS[teamSummary.team] || "secondary"}
-                        className="text-[10px] px-2 py-0.5 font-medium shrink-0"
-                      >
-                        {isFull ? "Lotado" : `${percent}% ocupado`}
-                      </Badge>
-                    </div>
-
-                    {/* Métricas: Atendimentos/Capacidade Máxima e Fila de Espera */}
-                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/40">
-                      <div>
-                        <div className="text-[11px] text-muted-foreground font-medium">
-                          Atendimentos
-                        </div>
-                        <div className="text-base font-bold font-mono text-foreground mt-0.5">
-                          {teamSummary.currentLoad}
-                          <span className="text-xs font-normal text-muted-foreground">
-                            /{teamSummary.totalCapacity}
+                    <Card className="p-4 bg-card/90 border shadow-xs group-hover:border-primary/50 group-hover:shadow-md transition-all flex flex-col justify-between space-y-3 cursor-pointer h-full">
+                      {/* Top: Ícone, Nome da Equipe e Link Indicator */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${theme.iconBg} ${theme.iconColor} group-hover:scale-105 transition-transform`}>
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <span className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                            {label}
                           </span>
                         </div>
-                      </div>
-
-                      <div>
-                        <div className="text-[11px] text-muted-foreground font-medium">
-                          Fila de espera
-                        </div>
-                        <div className={`text-base font-bold font-mono mt-0.5 ${
-                          teamSummary.waitingCount > 0
-                            ? "text-amber-600 dark:text-amber-400"
-                            : "text-foreground"
-                        }`}>
-                          {teamSummary.waitingCount}
-                          <span className="text-xs font-normal text-muted-foreground">
-                            /{teamSummary.maxQueueCapacity}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Barra de Progresso Minimalista */}
-                    <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-300 ${
-                          isFull
-                            ? "bg-amber-500"
-                            : percent > 70
-                            ? "bg-primary"
-                            : "bg-emerald-500"
-                        }`}
-                        style={{ width: `${Math.min(percent, 100)}%` }}
-                      />
-                    </div>
-
-                    {/* Lista Minimalista de Atendentes */}
-                    {teamSummary.agents && teamSummary.agents.length > 0 && (
-                      <div className="pt-2 border-t border-border/40 flex flex-wrap gap-1.5">
-                        {teamSummary.agents.map((agent) => (
-                          <div
-                            key={agent.id}
-                            className="inline-flex items-center gap-1 bg-muted/60 text-[10px] px-2 py-0.5 rounded-md text-muted-foreground"
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <Badge
+                            variant={TEAM_VARIANTS[teamSummary.team] || "secondary"}
+                            className="text-[10px] px-2 py-0.5 font-medium"
                           >
-                            <User className="h-2.5 w-2.5" />
-                            <span className="font-medium text-foreground">{agent.name}</span>
-                            <span className="font-mono text-[9px]">
-                              ({agent.currentLoad}/{agent.maxCapacity})
+                            {isFull ? "Lotado" : `${percent}% ocupado`}
+                          </Badge>
+                          <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                      </div>
+
+                      {/* Métricas: Atendimentos/Capacidade Máxima e Fila de Espera */}
+                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/40">
+                        <div>
+                          <div className="text-[11px] text-muted-foreground font-medium">
+                            Atendimentos
+                          </div>
+                          <div className="text-base font-bold font-mono text-foreground mt-0.5">
+                            {teamSummary.currentLoad}
+                            <span className="text-xs font-normal text-muted-foreground">
+                              /{teamSummary.totalCapacity}
                             </span>
                           </div>
-                        ))}
+                        </div>
+
+                        <div>
+                          <div className="text-[11px] text-muted-foreground font-medium">
+                            Fila de espera
+                          </div>
+                          <div className={`text-base font-bold font-mono mt-0.5 ${
+                            teamSummary.waitingCount > 0
+                              ? "text-amber-600 dark:text-amber-400"
+                              : "text-foreground"
+                          }`}>
+                            {teamSummary.waitingCount}
+                            <span className="text-xs font-normal text-muted-foreground">
+                              /{teamSummary.maxQueueCapacity}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    )}
-                  </Card>
+
+                      {/* Barra de Progresso Minimalista */}
+                      <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 ${
+                            isFull
+                              ? "bg-amber-500"
+                              : percent > 70
+                              ? "bg-primary"
+                              : "bg-emerald-500"
+                          }`}
+                          style={{ width: `${Math.min(percent, 100)}%` }}
+                        />
+                      </div>
+                    </Card>
+                  </Link>
                 );
               })}
             </div>
           ) : null}
         </section>
-      </main>
-
-      {/* Drawer para Novo Atendimento */}
-      <NewTicketDrawer
-        open={isDrawerOpen}
-        onOpenChange={setIsDrawerOpen}
-        onSubmitTicket={createAtendimento}
-      />
-    </div>
+      </div>
+    </AppShell>
   );
 }
